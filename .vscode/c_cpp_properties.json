@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "windowsSdkVersion": "10.0.22000.0",
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}\\GLUT"
+            ],
+            "compilerPath": "${workspaceFolder}\\mingw32\\bin\\gcc.exe"
+        }
+    ],
+    "version": 4
+}
