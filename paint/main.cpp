@@ -37,7 +37,7 @@ int coordenadaSegundoClickY;
 enum tipo_forma {
     LINHA = 1,
     TRIANGULO = 2,
-    RETA = 3,
+    RETANGULO = 3,
     POLIGANO = 4,
     CIRCULO = 5
 };
@@ -195,6 +195,18 @@ void movimentacaoMouseComClick(int button, int state, int x, int y) {
                 break;
             }
 
+        case RETANGULO:
+            if (state == GLUT_DOWN) {
+                verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
+                contadorClicks++;
+                if (contadorClicks == 2) {
+                    salvarFigura(RETANGULO);
+                    contadorClicks = 0;
+                    glutPostRedisplay();
+                }
+                break;
+            }
+
         default:
             break;
         }
@@ -203,6 +215,35 @@ void movimentacaoMouseComClick(int button, int state, int x, int y) {
     default:
         break;
     }
+}
+
+void salvarRetangulo() {
+    Vertice vertice1 = verticesFormaCorrent[0];
+    Vertice vertice2 = verticesFormaCorrent[1];
+
+    int x1 = vertice1.coordenadaX;
+    int y1 = vertice1.coordenadaY;
+
+    int x2 = vertice2.coordenadaX;
+    int y2 = vertice2.coordenadaY;
+
+    vector<pair<int, int>> vertices1 = calcularBresenhamPrimeiroOctante(x1, y1, x2, y1);
+    vector<pair<int, int>> vertices2 = calcularBresenhamPrimeiroOctante(x2, y1, x2, y2);
+    vector<pair<int, int>> vertices3 = calcularBresenhamPrimeiroOctante(x2, y2, x1, y2);
+    vector<pair<int, int>> vertices4 = calcularBresenhamPrimeiroOctante(x1, y2, x1, y1);
+
+    vector<vector<pair<int, int>>> vectorsVertices({ vertices1, vertices2, vertices3, vertices4 });
+    vector<Vertice> vertices;
+    for (auto conjuntoVertices : vectorsVertices) {
+        for (pair<int, int> vertice : conjuntoVertices) {
+            vertices.emplace_back(vertice.first, vertice.second);
+        }
+    }
+
+    Forma forma(paint.formas.size(), RETANGULO, vertices);
+    paint.addForma(forma);
+
+
 }
 
 void salvarTriangulo() {
@@ -265,6 +306,10 @@ void salvarFigura(tipo_forma tipoForma) {
         salvarTriangulo();
     }
 
+    if (tipoForma == RETANGULO) {
+        salvarRetangulo();
+    }
+
     verticesFormaCorrent.clear();
 }
 
@@ -283,6 +328,9 @@ void keyboard(unsigned char key, int x, int y) {
     }
     if (key == 't') {
         formaAtual = TRIANGULO;
+    }
+    if (key == 'r') {
+        formaAtual = RETANGULO;
     }
 
 }
