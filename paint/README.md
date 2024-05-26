@@ -1,5 +1,10 @@
 # Paint com GLUT - Computação Gráfica
 
+##Paint
+
+![Paint Implementado](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/image.png)
+
+
 Desenvolva um Editor Gráfico em C/C++, estilo o Paint da Microsoft, utilizando as bibliotecas
 GLUT/OpenGL. Leia os comentários do programa “paint.cpp” e utilize o programa “paint.cpp”
 como referência. O foco deste trabalho consiste em implementar várias técnicas de Rasterização
