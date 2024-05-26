@@ -1,9 +1,11 @@
 # Paint com GLUT - Computação Gráfica
 
-##Paint
+## Paint
+![Paint Implementado](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/paint/imagem_meu_paint.png)
 
-![Paint Implementado](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/image.png)
 
+  - Menu para fechamento de poligano
+  - ![Fechamento de Poligano](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/paint/imagem_fechamento_poligano.png)
 
 Desenvolva um Editor Gráfico em C/C++, estilo o Paint da Microsoft, utilizando as bibliotecas
 GLUT/OpenGL. Leia os comentários do programa “paint.cpp” e utilize o programa “paint.cpp”
