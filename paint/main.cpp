@@ -269,6 +269,7 @@ void definirFormaParaPintura(int x, int y);
 void adicionarTransformacoes();
 void mapearClickNaAreaOpcoes(int x, int y);
 void pintarForma(Forma& forma);
+void menu(int value);
 
 int main(int argc, char** argv)
 {
@@ -287,12 +288,38 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutDisplayFunc(display);
 
+    glutCreateMenu(menu);
+    glutAddMenuEntry("Sair", 0);
+    glutAddMenuEntry("Fechar poligano em construcao", 1);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
     glutMainLoop();
     return EXIT_SUCCESS;
 }
 
 void init(void) {
     glClearColor(1.0, 1.0, 1.0, 1.0); //Limpa a tela com a cor branca;
+}
+
+void menu(int comando) {
+    if (comando == 0) exit(EXIT_SUCCESS);
+
+    if (comando == 1) {
+        if (verticesFormaCorrent.size() > 2) {
+            Vertice verticePrimeiro = verticesFormaCorrent[0];
+            Vertice verticeUltimo = verticesFormaCorrent[verticesFormaCorrent.size() - 1];
+            glBegin(GL_LINES);
+            glVertex2f(verticeUltimo.coordenadaX, verticeUltimo.coordenadaY);
+            glVertex2f(verticePrimeiro.coordenadaX, verticeUltimo.coordenadaY);
+            glEnd();
+
+            salvarFigura(POLIGANO);
+            contadorClicks = 0;
+            poliganoCompleto = false;
+            glutPostRedisplay();
+        }
+        poliganoCompleto = true;
+    }
 }
 
 void movimentacaoMouseComClick(int button, int state, int x, int y) {
