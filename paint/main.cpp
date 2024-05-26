@@ -268,6 +268,7 @@ void adicionarTransformacoes();
 void desenharQuadroDeCores();
 void desenharQuadroOpcoes();
 void mapearClickNaAreaOpcoes(int x, int y);
+void desenharOpcoesEixoEPintura();
 
 int main(int argc, char** argv)
 {
@@ -529,62 +530,62 @@ void keyboard(unsigned char key, int x, int y) {
         exit(EXIT_SUCCESS);
     }
 
-    if (key == 'l') {
-        formaAtual = LINHA;
-    }
-    if (key == 'c') {
-        formaAtual = CIRCULO;
-    }
-    if (key == 't') {
-        formaAtual = TRIANGULO;
-    }
-    if (key == 'r') {
-        formaAtual = RETANGULO;
-    }
-    if (key == 'p') {
-        formaAtual = POLIGANO;
-    }
-    if (key == '+') {
-        espessuraLinha++;
-    }
+    // if (key == 'l') {
+    //     formaAtual = LINHA;
+    // }
+    // if (key == 'c') {
+    //     formaAtual = CIRCULO;
+    // }
+    // if (key == 't') {
+    //     formaAtual = TRIANGULO;
+    // }
+    // if (key == 'r') {
+    //     formaAtual = RETANGULO;
+    // }
+    // if (key == 'p') {
+    //     formaAtual = POLIGANO;
+    // }
+    // if (key == '+') {
+    //     espessuraLinha++;
+    // }
 
-    if (key == '-') {
-        if (espessuraLinha > 1) {
-            espessuraLinha--;
-        }
-    }
+    // if (key == '-') {
+    //     if (espessuraLinha > 1) {
+    //         espessuraLinha--;
+    //     }
+    // }
 
-    if (key == 'e') {
-        isAplicarEscala = true;
-    }
+    // if (key == 'e') {
+    //     isAplicarEscala = true;
+    // }
 
-    if (key == 'j') {
-        isAplicarTranslacao = true;
-    }
+    // if (key == 'j') {
+    //     isAplicarTranslacao = true;
+    // }
 
-    if (key == 'q') {
-        isAplicarCisalhamento = true;
-    }
+    // if (key == 'q') {
+    //     isAplicarCisalhamento = true;
+    // }
 
-    if (key == 'w' && eixo != '#') {
-        isAplicarReflexao = true;
-    }
+    // if (key == 'w' && eixo != '#') {
+    //     isAplicarReflexao = true;
+    // }
 
-    if (key == 'b') {
-        isAplicaoRotacao = true;
-    }
+    // if (key == 'b') {
+    //     isAplicaoRotacao = true;
+    // }
 
-    if (key == 'f' && !poliganoCompleto && verticesFormaCorrent.size() > 2) {
-        poliganoCompleto = true;
-    }
+    // if (key == 'f' && !poliganoCompleto && verticesFormaCorrent.size() > 2) {
+    //     poliganoCompleto = true;
+    // }
 
-    if (key == 'y' or key == 'x' or key == 'Y' or key == 'X') {
-        eixo = key;
-    }
+    // if (key == 'y' or key == 'x' or key == 'Y' or key == 'X') {
+    //     eixo = key;
+    // }
 
-    if (key == 'z') {
-        isAplicarPintura = true;
-    }
+    // if (key == 'z') {
+    //     isAplicarPintura = true;
+    // }
 }
 
 void movimentoMousePassivo(int x, int y) {
@@ -623,6 +624,8 @@ void display(void) {
     glRectf(0, alturaJanela, larguraJanela, alturaJanela - 100);
 
     desenharQuadroDeCores();
+
+    desenharOpcoesEixoEPintura();
 
     desenharQuadroOpcoes();
 
@@ -885,68 +888,59 @@ void desenharQuadroDeCores() {
     //Quadrado de cores
     glColor3f(0, 0, 0);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(300, alturaJanela - 10);
-    glVertex2f(550, alturaJanela - 10);
-    glVertex2f(550, alturaJanela - 90);
-    glVertex2f(300, alturaJanela - 90);
+    glVertex2f(350, alturaJanela - 10);
+    glVertex2f(600, alturaJanela - 10);
+    glVertex2f(600, alturaJanela - 90);
+    glVertex2f(350, alturaJanela - 90);
     glEnd();
 
     //COR
     glColor3f(0.0f, 0.0f, 1.0f);
     glBegin(GL_QUADS);
-    glVertex2f(300, alturaJanela - 10);
     glVertex2f(350, alturaJanela - 10);
+    glVertex2f(400, alturaJanela - 10);
+    glVertex2f(400, alturaJanela - 50);
     glVertex2f(350, alturaJanela - 50);
-    glVertex2f(300, alturaJanela - 50);
     glEnd();
 
     //COR
     glColor3f(0.5f, 0.0f, 0.5f);
     glBegin(GL_QUADS);
-    glVertex2f(350, alturaJanela - 10);
     glVertex2f(400, alturaJanela - 10);
+    glVertex2f(450, alturaJanela - 10);
+    glVertex2f(450, alturaJanela - 50);
     glVertex2f(400, alturaJanela - 50);
-    glVertex2f(350, alturaJanela - 50);
     glEnd();
 
     //COR
     glColor3f(0.54f, 0.17f, 0.89f);
     glBegin(GL_QUADS);
-    glVertex2f(400, alturaJanela - 10);
-    glVertex2f(450, alturaJanela - 10);
-    glVertex2f(450, alturaJanela - 50);
-    glVertex2f(400, alturaJanela - 50);
-    glEnd();
-
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glBegin(GL_QUADS);
     glVertex2f(450, alturaJanela - 10);
     glVertex2f(500, alturaJanela - 10);
     glVertex2f(500, alturaJanela - 50);
     glVertex2f(450, alturaJanela - 50);
     glEnd();
 
-    glColor3f(0.54f, 0.17f, 0.89f);
+    glColor3f(1.0f, 1.0f, 0.0f);
     glBegin(GL_QUADS);
     glVertex2f(500, alturaJanela - 10);
     glVertex2f(550, alturaJanela - 10);
     glVertex2f(550, alturaJanela - 50);
     glVertex2f(500, alturaJanela - 50);
+    glEnd();
+
+    glColor3f(0.54f, 0.17f, 0.89f);
+    glBegin(GL_QUADS);
+    glVertex2f(550, alturaJanela - 10);
+    glVertex2f(600, alturaJanela - 10);
+    glVertex2f(600, alturaJanela - 50);
+    glVertex2f(550, alturaJanela - 50);
     glEnd();
 
     //Cores de baixo
     //COR
     glColor3f(1.0f, 0.5f, 0.0f);
     glBegin(GL_QUADS);
-    glVertex2f(300, alturaJanela - 50);
-    glVertex2f(350, alturaJanela - 50);
-    glVertex2f(350, alturaJanela - 90);
-    glVertex2f(300, alturaJanela - 90);
-    glEnd();
-
-    //COR
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_QUADS);
     glVertex2f(350, alturaJanela - 50);
     glVertex2f(400, alturaJanela - 50);
     glVertex2f(400, alturaJanela - 90);
@@ -954,7 +948,7 @@ void desenharQuadroDeCores() {
     glEnd();
 
     //COR
-    glColor3f(1.0f, 0.0f, 1.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_QUADS);
     glVertex2f(400, alturaJanela - 50);
     glVertex2f(450, alturaJanela - 50);
@@ -962,7 +956,8 @@ void desenharQuadroDeCores() {
     glVertex2f(400, alturaJanela - 90);
     glEnd();
 
-    glColor3f(0.0f, 1.0f, 1.0f);
+    //COR
+    glColor3f(1.0f, 0.0f, 1.0f);
     glBegin(GL_QUADS);
     glVertex2f(450, alturaJanela - 50);
     glVertex2f(500, alturaJanela - 50);
@@ -970,7 +965,7 @@ void desenharQuadroDeCores() {
     glVertex2f(450, alturaJanela - 90);
     glEnd();
 
-    glColor3f(0.0f, 0.5f, 0.5f);
+    glColor3f(0.0f, 1.0f, 1.0f);
     glBegin(GL_QUADS);
     glVertex2f(500, alturaJanela - 50);
     glVertex2f(550, alturaJanela - 50);
@@ -978,22 +973,30 @@ void desenharQuadroDeCores() {
     glVertex2f(500, alturaJanela - 90);
     glEnd();
 
+    glColor3f(0.0f, 0.5f, 0.5f);
+    glBegin(GL_QUADS);
+    glVertex2f(550, alturaJanela - 50);
+    glVertex2f(600, alturaJanela - 50);
+    glVertex2f(600, alturaJanela - 90);
+    glVertex2f(550, alturaJanela - 90);
+    glEnd();
+
     //Linha do Meio
     glBegin(GL_LINES);
     glColor3f(1.0f, 1.0f, 1.0f);
-    glVertex2f(300, alturaJanela - 50);
-    glVertex2f(550, alturaJanela - 50);
+    glVertex2f(350, alturaJanela - 50);
+    glVertex2f(600, alturaJanela - 50);
     glEnd();
 
     glColor3f(0.0f, 0.0f, 0.0f);
-    draw_text_stroke(590, alturaJanela - 30, "Cor Selecionada", 0.1);
+    draw_text_stroke(620, alturaJanela - 30, "Cor Selecionada", 0.07);
     //Cor Atual selecionada
     glColor3f(corAtual[0], corAtual[1], corAtual[2]);
     glBegin(GL_QUADS);
-    glVertex2f(600, alturaJanela - 50);
-    glVertex2f(650, alturaJanela - 50);
-    glVertex2f(650, alturaJanela - 90);
-    glVertex2f(600, alturaJanela - 90);
+    glVertex2f(630, alturaJanela - 50);
+    glVertex2f(680, alturaJanela - 50);
+    glVertex2f(680, alturaJanela - 90);
+    glVertex2f(630, alturaJanela - 90);
     glEnd();
 }
 
@@ -1032,7 +1035,32 @@ void desenharMenuOpcoes() {
     glEnd();
 
     desenharCirculo(220, alturaJanela - 30, 230, alturaJanela - 30);
+}
 
+void desenharOpcoesEixoEPintura() {
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(270, alturaJanela - 10);
+    glVertex2f(340, alturaJanela - 10);
+    glVertex2f(340, alturaJanela - 90);
+    glVertex2f(270, alturaJanela - 90);
+    glEnd();
+
+    //1° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(270, alturaJanela - 35);
+    glVertex2f(340, alturaJanela - 35);
+    glEnd();
+
+    //2° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(270, alturaJanela - 60);
+    glVertex2f(340, alturaJanela - 60);
+    glEnd();
+
+    draw_text_stroke(280, alturaJanela - 30, "Eixo-X", 0.1);
+    draw_text_stroke(280, alturaJanela - 50, "Eixo-Y", 0.1);
+    draw_text_stroke(280, alturaJanela - 80, "Pintar", 0.1);
 }
 
 void adicionarTransformacoes() {
@@ -1099,74 +1127,80 @@ void mapearClickNaAreaOpcoes(int x, int y) {
     }
 
     //Mapeamento para aplicar pintura.
-    if (x >= 300 && x <= 350 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
-        isAplicarPintura = true;
+    if (x >= 350 && x <= 400 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         corAtual[0] = 0.0f;
         corAtual[1] = 0.0f;
         corAtual[2] = 1.0f;
     }
 
-    if (x >= 351 && x <= 400 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
-        isAplicarPintura = true;
+    if (x >= 401 && x <= 450 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         corAtual[0] = 0.5f;
         corAtual[1] = 0.0f;
         corAtual[2] = 0.5f;
     }
 
-    if (x >= 401 && x <= 450 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
-        isAplicarPintura = true;
+    if (x >= 451 && x <= 500 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         corAtual[0] = 0.54f;
         corAtual[1] = 0.17f;
         corAtual[2] = 0.89f;
     }
 
-    if (x >= 451 && x <= 500 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
-        isAplicarPintura = true;
+    if (x >= 501 && x <= 550 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         corAtual[0] = 1.0f;
         corAtual[1] = 1.0f;
         corAtual[2] = 0.0f;
     }
 
-    if (x >= 501 && x <= 550 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
-        isAplicarPintura = true;
+    if (x >= 551 && x <= 600 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         corAtual[0] = 0.54f;
         corAtual[1] = 0.17f;
         corAtual[2] = 0.89f;
     }
 
     //Cores de baixo
-    if (x >= 300 && x <= 350 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
-        isAplicarPintura = true;
+    if (x >= 350 && x <= 400 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         corAtual[0] = 1.0f;
         corAtual[1] = 0.5f;
         corAtual[2] = 0.0f;
     }
 
-    if (x >= 351 && x <= 400 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
-        isAplicarPintura = true;
+    if (x >= 401 && x <= 450 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         corAtual[0] = 1.0f;
         corAtual[1] = 0.0f;
         corAtual[2] = 0.0f;
     }
 
-    if (x >= 401 && x <= 450 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
-        isAplicarPintura = true;
+    if (x >= 451 && x <= 500 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         corAtual[0] = 1.0f;
         corAtual[1] = 0.0f;
         corAtual[2] = 1.0f;
     }
 
-    if (x >= 451 && x <= 500 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
-        isAplicarPintura = true;
+    if (x >= 501 && x <= 550 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         corAtual[0] = 0.0f;
         corAtual[1] = 1.0f;
         corAtual[2] = 1.0f;
     }
 
-    if (x >= 501 && x <= 550 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
-        isAplicarPintura = true;
+    if (x >= 551 && x <= 600 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         corAtual[0] = 0.0f;
         corAtual[1] = 0.5f;
         corAtual[2] = 0.5f;
+    }
+
+    //Pintura e escolha dos Eixos
+    if (x >= 270 && x <= 340 && y <= (alturaJanela - 10) && y >= (alturaJanela - 35)) {
+        eixo = 'x';
+        printf("Clicou para eixo X");
+    }
+
+    if (x >= 270 && x <= 340 && y <= (alturaJanela - 36) && y >= (alturaJanela - 60)) {
+        eixo = 'y';
+        printf("Clicou para eixo Y");
+    }
+
+    if (x >= 270 && x <= 340 && y <= (alturaJanela - 60) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        printf("Clicou para pintura");
     }
 }
