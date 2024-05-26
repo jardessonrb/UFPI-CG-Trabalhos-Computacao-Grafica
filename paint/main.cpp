@@ -21,6 +21,7 @@
 #include "botoes_opcoes.h"
 #include <vector>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ using namespace std;
 
 bool isAplicarEscala = false, isAplicarTranslacao = false,
 isAplicarCisalhamento = false, isAplicarReflexao = false, isAplicaoRotacao = false, isAplicarPintura = false;
-char eixo = '#';
+char eixo = 'x';
 float corAtual[3] = { 0.0f, 0.5f, 0.5f };
 
 double valorCosseno = 0.7, valorSeno = 0.7;
@@ -253,7 +254,6 @@ Paint paint;
 tipo_forma formaAtual = LINHA;
 vector<Vertice> verticesFormaCorrent;
 
-void reiniciarVariaveisAplicacoes();
 void drawPreview(vector<pair<int, int>> vertices);
 void salvarFigura(tipo_forma forma);
 void init(void);
@@ -265,9 +265,10 @@ void movimentoMousePassivo(int x, int y);
 void drawPixel(int x, int y);
 void drawPixelPintado(int x, int y, float cor[]);
 void drawFormas();
-void algoritmoFloodFill(int x, int y);
+void definirFormaParaPintura(int x, int y);
 void adicionarTransformacoes();
 void mapearClickNaAreaOpcoes(int x, int y);
+void pintarForma(Forma& forma);
 
 int main(int argc, char** argv)
 {
@@ -303,7 +304,7 @@ void movimentacaoMouseComClick(int button, int state, int x, int y) {
         else {
 
             if (isAplicarPintura) {
-                algoritmoFloodFill(x, alturaJanela - y - 1);
+                definirFormaParaPintura(x, alturaJanela - y - 1);
                 isAplicarPintura = false;
                 return;
             }
@@ -605,73 +606,38 @@ void drawFormas() {
     glColor3f(0.0f, 0.0f, 0.0f);
     for (Forma& forma : paint.getFormas()) {
         if (forma.tipoForma == LINHA) {
-            if (forma.isPintada) {
-                for (Vertice vertice : forma.getVertices()) {
-                    if (forma.isPintada) {
-                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
-                    }
-                    else {
-                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-                    }
-                }
-            }
             rasterizarLinha(forma);
+            if (forma.isPintada) {
+                pintarForma(forma);
+            }
         }
 
         if (forma.tipoForma == TRIANGULO) {
-            if (forma.isPintada) {
-                for (Vertice vertice : forma.getVertices()) {
-                    if (forma.isPintada) {
-                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
-                    }
-                    else {
-                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-                    }
-                }
-            }
             rasterizarTriangulo(forma);
+            if (forma.isPintada) {
+                pintarForma(forma);
+            }
         }
 
         if (forma.tipoForma == RETANGULO) {
-            if (forma.isPintada) {
-                for (Vertice vertice : forma.getVertices()) {
-                    if (forma.isPintada) {
-                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
-                    }
-                    else {
-                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-                    }
-                }
-            }
             rasterizarRetangulo(forma);
+            if (forma.isPintada) {
+                pintarForma(forma);
+            }
         }
 
         if (forma.tipoForma == POLIGANO) {
-            if (forma.isPintada) {
-                for (Vertice vertice : forma.getVertices()) {
-                    if (forma.isPintada) {
-                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
-                    }
-                    else {
-                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-                    }
-                }
-            }
             rasterizarPoligano(forma);
+            if (forma.isPintada) {
+                pintarForma(forma);
+            }
         }
 
         if (forma.tipoForma == CIRCULO) {
-            if (forma.isPintada) {
-                for (Vertice vertice : forma.getVertices()) {
-                    if (forma.isPintada) {
-                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
-                    }
-                    else {
-                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-                    }
-                }
-            }
             rasterizarCirculo(forma);
+            if (forma.isPintada) {
+                pintarForma(forma);
+            }
         }
     }
 
@@ -708,9 +674,16 @@ void drawPixelPintado(int x, int y, float cor[]) {
     glFlush();
 }
 
-void reiniciarVariaveisAplicacoes() {
-    isAplicarEscala = false;
-    isAplicarTranslacao = false;
+
+bool isPertenceAoCirculo(int x, int y, Forma& forma) {
+    Vertice verticeCentral = forma.vertices[1]; //Ponto do raio
+    Vertice vertice = forma.vertices[0]; //Ponto da borda
+    float dx = x - verticeCentral.coordenadaX;
+    float dy = y - verticeCentral.coordenadaY;
+    float distancia = dx * dx + dy * dy;
+
+    float raio = sqrt(pow(verticeCentral.coordenadaX - vertice.coordenadaX, 2) + pow(verticeCentral.coordenadaY - vertice.coordenadaY, 2));
+    return distancia <= (raio * raio);
 }
 
 bool isPertencenteAForma(int x, int y, Forma& forma) {
@@ -723,9 +696,9 @@ bool isPertencenteAForma(int x, int y, Forma& forma) {
         int xi = forma.vertices[i].coordenadaX;
         int xj = forma.vertices[j].coordenadaX;
 
-        bool intersect = ((yi > y) != (yj > y)) &&
+        bool intersecao = ((yi > y) != (yj > y)) &&
             (x < (xj - xi) * (y - yi) / (double)(yj - yi) + xi);
-        if (intersect) {
+        if (intersecao) {
             count++;
         }
     }
@@ -733,48 +706,51 @@ bool isPertencenteAForma(int x, int y, Forma& forma) {
     return count % 2 == 1;
 }
 
-void pintarForma(int x, int y, Forma& forma) {
-    vector<vector<bool>> visitados(larguraJanela, vector<bool>(alturaJanela, false));
-    queue<Vertice> vertices;
-    Vertice vertice(x, y);
+void pintarForma(Forma& forma) {
+    vector<Vertice> vertices = forma.vertices;
+    int ymin = vertices[0].coordenadaY, ymax = vertices[0].coordenadaY;
+    glColor3f(forma.cor[0], forma.cor[1], forma.cor[2]);
+    for (const auto& vertex : vertices) {
+        if (vertex.coordenadaY < ymin) ymin = vertex.coordenadaY;
+        if (vertex.coordenadaY > ymax) ymax = vertex.coordenadaY;
+    }
 
-    vertices.push(vertice);
-    visitados[x][y] = true;
+    for (int y = ymin; y <= ymax; ++y) {
+        vector<int> intersecoes;
 
-    forma.definirCor(corAtual[0], corAtual[1], corAtual[2]);
-    while (!vertices.empty()) {
-        Vertice atual = vertices.front();
-        vertices.pop();
-        visitados[atual.coordenadaX][atual.coordenadaY] = true;
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            size_t j = (i + 1) % vertices.size();
+            if ((vertices[i].coordenadaY <= y && vertices[j].coordenadaY > y) || (vertices[j].coordenadaY <= y && vertices[i].coordenadaY > y)) {
+                int x = vertices[i].coordenadaX + (y - vertices[i].coordenadaY) * (vertices[j].coordenadaX - vertices[i].coordenadaX) / (vertices[j].coordenadaY - vertices[i].coordenadaY);
+                intersecoes.push_back(x);
+            }
+        }
 
-        for (int i = 0; i < 4; i++)
-        {
-            x = atual.coordenadaX + dx[i];
-            y = atual.coordenadaY + dy[i];
+        sort(intersecoes.begin(), intersecoes.end());
 
-            if (x >= 0 && x < larguraJanela && y >= 0 && y < alturaJanela) {
-                if (!visitados[x][y]) {
-                    unsigned char pixelColor[3];
-                    glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelColor);
-                    if (pixelColor[0] != 0 && pixelColor[1] != 0 && pixelColor[2] != 0) {
-                        visitados[x][y] = true;
-                        Vertice novoVertice(x, y);
-                        vertices.push(novoVertice);
-                        forma.addVertice(x, y);
-                    }
-
-                }
+        for (size_t k = 0; k < intersecoes.size(); k += 2) {
+            for (int x = intersecoes[k]; x < intersecoes[k + 1]; ++x) {
+                drawPixel(x, y);
             }
         }
     }
 }
 
-void algoritmoFloodFill(int x, int y) {
+void definirFormaParaPintura(int x, int y) {
     for (Forma& forma : paint.formas) {
-        if (isPertencenteAForma(x, y, forma)) {
-            printf("[%d, %d] pertence a forma %d", x, y, forma.posicao);
-            pintarForma(x, y, forma);
-            return;
+        if (forma.tipoForma == CIRCULO) {
+            printf("Ciclou circulo [%d, %d]", x, y);
+            if (isPertenceAoCirculo(x, y, forma)) {
+                printf("pertence ao circulo");
+                forma.definirCor(corAtual[0], corAtual[1], corAtual[2]);
+                return;
+            }
+        }
+        else {
+            if (isPertencenteAForma(x, y, forma)) {
+                forma.definirCor(corAtual[0], corAtual[1], corAtual[2]);
+                return;
+            }
         }
     }
 }
