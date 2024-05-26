@@ -382,32 +382,29 @@ void movimentacaoMouseComClick(int button, int state, int x, int y) {
     }
 }
 
-void salvarPoligano() {
+void rasterizarPoligano(Forma& forma) {
     vector<Vertice> vertices;
-    for (int i = 1; i < verticesFormaCorrent.size(); i++)
+    for (int i = 1; i < forma.vertices.size(); i++)
     {
-        Vertice anterior = verticesFormaCorrent[i - 1];
-        Vertice atual = verticesFormaCorrent[i];
+        Vertice anterior = forma.vertices[i - 1];
+        Vertice atual = forma.vertices[i];
         vector<pair<int, int>> verticesBresenham = calcularBresenhamPrimeiroOctante(anterior.coordenadaX, anterior.coordenadaY, atual.coordenadaX, atual.coordenadaY);
-        for (auto vertice : verticesBresenham) {
-            vertices.emplace_back(vertice.first, vertice.second);
+        for (auto [x, y] : verticesBresenham) {
+            drawPixel(x, y);
         }
     }
 
-    Vertice primeiroVertice = verticesFormaCorrent[0];
-    Vertice ultimoVertice = verticesFormaCorrent[verticesFormaCorrent.size() - 1];
+    Vertice primeiroVertice = forma.vertices[0];
+    Vertice ultimoVertice = forma.vertices[forma.vertices.size() - 1];
     vector<pair<int, int>> verticesBresenham = calcularBresenhamPrimeiroOctante(ultimoVertice.coordenadaX, ultimoVertice.coordenadaY, primeiroVertice.coordenadaX, primeiroVertice.coordenadaY);
-    for (auto vertice : verticesBresenham) {
-        vertices.emplace_back(vertice.first, vertice.second);
+    for (auto [x, y] : verticesBresenham) {
+        drawPixel(x, y);
     }
-
-    Forma forma(paint.formas.size(), POLIGANO, vertices);
-    paint.addForma(forma);
 }
 
-void salvarRetangulo() {
-    Vertice vertice1 = verticesFormaCorrent[0];
-    Vertice vertice2 = verticesFormaCorrent[1];
+void rasterizarRetangulo(Forma& forma) {
+    Vertice vertice1 = forma.vertices[0];
+    Vertice vertice2 = forma.vertices[1];
 
     int x1 = vertice1.coordenadaX;
     int y1 = vertice1.coordenadaY;
@@ -422,22 +419,25 @@ void salvarRetangulo() {
 
     vector<vector<pair<int, int>>> vectorsVertices({ vertices1, vertices2, vertices3, vertices4 });
     vector<Vertice> vertices;
-    for (auto conjuntoVertices : vectorsVertices) {
-        for (pair<int, int> vertice : conjuntoVertices) {
-            vertices.emplace_back(vertice.first, vertice.second);
-        }
-    }
 
-    Forma forma(paint.formas.size(), RETANGULO, vertices);
-    paint.addForma(forma);
+    for (auto [x, y] : vertices1)
+        drawPixel(x, y);
 
+    for (auto [x, y] : vertices2)
+        drawPixel(x, y);
+
+    for (auto [x, y] : vertices3)
+        drawPixel(x, y);
+
+    for (auto [x, y] : vertices4)
+        drawPixel(x, y);
 
 }
 
-void salvarTriangulo() {
-    Vertice vertice1 = verticesFormaCorrent[0];
-    Vertice vertice2 = verticesFormaCorrent[1];
-    Vertice vertice3 = verticesFormaCorrent[2];
+void rasterizarTriangulo(Forma& forma) {
+    Vertice vertice1 = forma.vertices[0];
+    Vertice vertice2 = forma.vertices[1];
+    Vertice vertice3 = forma.vertices[2];
 
     vector<pair<int, int>> verticesPrimeiroLado = calcularBresenhamPrimeiroOctante(vertice1.coordenadaX, vertice1.coordenadaY, vertice2.coordenadaX, vertice2.coordenadaY);
     vector<pair<int, int>> verticesSegundoLado = calcularBresenhamPrimeiroOctante(vertice2.coordenadaX, vertice2.coordenadaY, vertice3.coordenadaX, vertice3.coordenadaY);
@@ -447,61 +447,44 @@ void salvarTriangulo() {
     drawPixel(vertice2.coordenadaX, vertice2.coordenadaY);
     drawPixel(vertice3.coordenadaX, vertice3.coordenadaY);
 
-    for (pair<int, int> vertice2 : verticesSegundoLado) {
-        verticesPrimeiroLado.push_back(vertice2);
-    }
+    for (auto [x, y] : verticesPrimeiroLado)
+        drawPixel(x, y);
 
-    for (pair<int, int> vertice3 : verticesTerceiroLado) {
-        verticesPrimeiroLado.push_back(vertice3);
-    }
+    for (auto [x, y] : verticesSegundoLado)
+        drawPixel(x, y);
 
-    Forma forma(paint.formas.size(), TRIANGULO, verticesPrimeiroLado);
-    paint.addForma(forma);
+    for (auto [x, y] : verticesTerceiroLado)
+        drawPixel(x, y);
 }
 
-void salvarLinha() {
-    Vertice vertice1 = verticesFormaCorrent[0];
-    Vertice vertice2 = verticesFormaCorrent[1];
+void rasterizarLinha(Forma& forma) {
+    Vertice vertice1 = forma.vertices[0];
+    Vertice vertice2 = forma.vertices[1];
     vector<pair<int, int>> verticesPair = calcularBresenhamPrimeiroOctante(vertice1.coordenadaX, vertice1.coordenadaY, vertice2.coordenadaX, vertice2.coordenadaY);
     drawPixel(vertice1.coordenadaX, vertice1.coordenadaY);
     drawPixel(vertice2.coordenadaX, vertice2.coordenadaY);
 
-    Forma forma(paint.formas.size(), LINHA, verticesPair);
-    paint.addForma(forma);
+    for (auto [x, y] : verticesPair)
+    {
+        drawPixel(x, y);
+    }
+
 }
 
-void salvarCirculo() {
-    Vertice vertice1 = verticesFormaCorrent[0];
-    Vertice vertice2 = verticesFormaCorrent[1];
+void rasterizarCirculo(Forma& forma) {
+    Vertice vertice1 = forma.vertices[0];
+    Vertice vertice2 = forma.vertices[1];
     vector<pair<int, int>> verticesPair = salvarCirculo(vertice1.coordenadaX, vertice1.coordenadaY, vertice2.coordenadaX, vertice2.coordenadaY);
     drawPixel(vertice1.coordenadaX, vertice1.coordenadaY);
     drawPixel(vertice2.coordenadaX, vertice2.coordenadaY);
 
-    Forma forma(paint.formas.size(), CIRCULO, verticesPair);
-    paint.addForma(forma);
+    for (auto [x, y] : verticesPair)
+        drawPixel(x, y);
 }
 
 void salvarFigura(tipo_forma tipoForma) {
-    if (tipoForma == LINHA) {
-        salvarLinha();
-    }
-
-    if (tipoForma == CIRCULO) {
-        salvarCirculo();
-    }
-
-    if (tipoForma == TRIANGULO) {
-        salvarTriangulo();
-    }
-
-    if (tipoForma == RETANGULO) {
-        salvarRetangulo();
-    }
-
-    if (tipoForma == POLIGANO) {
-        salvarPoligano();
-        paint.cleanFiguraAtual();
-    }
+    Forma forma(paint.formas.size(), tipoForma, verticesFormaCorrent);
+    paint.addForma(forma);
 
     verticesFormaCorrent.clear();
 }
@@ -638,15 +621,79 @@ void drawFormas() {
     }
 
     glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0f, 0.0f, 0.0f);
     for (Forma& forma : paint.getFormas()) {
-        for (Vertice vertice : forma.getVertices()) {
+        if (forma.tipoForma == LINHA) {
             if (forma.isPintada) {
-                drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                for (Vertice vertice : forma.getVertices()) {
+                    if (forma.isPintada) {
+                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                    }
+                    else {
+                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+                    }
+                }
             }
-            else {
-                drawPixel(vertice.coordenadaX, vertice.coordenadaY);
-            }
+            rasterizarLinha(forma);
         }
+
+        if (forma.tipoForma == TRIANGULO) {
+            if (forma.isPintada) {
+                for (Vertice vertice : forma.getVertices()) {
+                    if (forma.isPintada) {
+                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                    }
+                    else {
+                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+                    }
+                }
+            }
+            rasterizarTriangulo(forma);
+        }
+
+        if (forma.tipoForma == RETANGULO) {
+            if (forma.isPintada) {
+                for (Vertice vertice : forma.getVertices()) {
+                    if (forma.isPintada) {
+                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                    }
+                    else {
+                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+                    }
+                }
+            }
+            rasterizarRetangulo(forma);
+        }
+
+        if (forma.tipoForma == POLIGANO) {
+            if (forma.isPintada) {
+                for (Vertice vertice : forma.getVertices()) {
+                    if (forma.isPintada) {
+                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                    }
+                    else {
+                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+                    }
+                }
+            }
+            rasterizarPoligano(forma);
+        }
+
+        if (forma.tipoForma == CIRCULO) {
+            if (forma.isPintada) {
+                for (Vertice vertice : forma.getVertices()) {
+                    if (forma.isPintada) {
+                        drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+                    }
+                    else {
+                        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+                    }
+                }
+            }
+            rasterizarCirculo(forma);
+        }
+
+
     }
 
     for (Vertice vertice : paint.getFiguraAtual()) {
@@ -715,7 +762,7 @@ void pintarForma(int x, int y, Forma& forma) {
     vertices.push(vertice);
     visitados[x][y] = true;
 
-    forma.definirCor(1, 0, 0);
+    forma.definirCor(corAtual[0], corAtual[1], corAtual[2]);
     while (!vertices.empty()) {
         Vertice atual = vertices.front();
         vertices.pop();
@@ -1056,6 +1103,7 @@ void mapearClickNaAreaOpcoes(int x, int y) {
         corAtual[2] = 0.89f;
     }
 
+    //Cores de baixo
     if (x >= 300 && x <= 350 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicarPintura = true;
         corAtual[0] = 1.0f;
