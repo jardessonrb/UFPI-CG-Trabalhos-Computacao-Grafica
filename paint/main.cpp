@@ -17,12 +17,22 @@
 #include "glut_text.h"
 #include "bresenham.h"
 #include "rasterizacao_circulo.h"
+#include "transformacoes.h"
 
 using namespace std;
 
 #define ESC 27
 
+bool isAplicarEscala = false, isAplicarTranslacao = false,
+isAplicarCisalhamento = false, isAplicarReflexao = false, isAplicaoRotacao = false, isAplicarPintura = false;
+char eixo = '#';
+float corAtual[3] = { 0.0f, 0.5f, 0.5f };
+
+double valorCosseno = 0.7, valorSeno = 0.7;
+
+int espessuraLinha = 1;
 bool isPrimeiroClick = false;
+bool poliganoCompleto = false;
 int contadorClicks = 0;
 int larguraJanela = 700;
 int alturaJanela = 700;
@@ -33,6 +43,9 @@ int coordenadaPrimeiroClickX;
 int coordenadaPrimeiroClickY;
 int coordenadaSegundoClickX;
 int coordenadaSegundoClickY;
+
+int dx[] = { 0, 1, 0, -1 };
+int dy[] = { -1, 0, 1, 0 };
 
 enum tipo_forma {
     LINHA = 1,
@@ -51,12 +64,18 @@ struct Vertice {
         this->coordenadaX = x;
         this->coordenadaY = y;
     }
+
+    bool operator==(const Vertice& other) const {
+        return coordenadaX == other.coordenadaX && coordenadaY == other.coordenadaY;
+    }
 };
 
 
 struct Forma {
     int posicao;
     int tipoForma;
+    bool isPintada = false;
+    float cor[3] = {};
     vector<Vertice> vertices;
 
     Forma(int posicao, tipo_forma tipoForma, vector<Vertice> vertices) {
@@ -80,8 +99,55 @@ struct Forma {
         this->vertices = vertices;
     }
 
-    vector<Vertice> getVertices() const {
+    void definirCor(float r, float g, float b) {
+        isPintada = true;
+        cor[0] = r;
+        cor[1] = g;
+        cor[2] = b;
+    }
+
+    vector<Vertice> getVertices() {
         return vertices;
+    }
+
+    void aplicarEscala(double valorEscala) {
+        for (Vertice& vertice : this->vertices) {
+            pair<int, int> novoValorVertice = escala(vertice.coordenadaX, vertice.coordenadaY, valorEscala);
+            vertice.coordenadaX = novoValorVertice.first;
+            vertice.coordenadaY = novoValorVertice.second;
+        }
+    }
+
+    void aplicarTranslacao(double valorTx, double valorTy) {
+        for (Vertice& vertice : this->vertices) {
+            pair<int, int> novoValorVertice = translacao(vertice.coordenadaX, vertice.coordenadaY, valorTx, valorTy);
+            vertice.coordenadaX = novoValorVertice.first;
+            vertice.coordenadaY = novoValorVertice.second;
+        }
+    }
+
+    void aplicarCisalhamento(double valorCisalhamento) {
+        for (Vertice& vertice : this->vertices) {
+            pair<int, int> novoValorVertice = cisalhamento(vertice.coordenadaX, vertice.coordenadaY, valorCisalhamento);
+            vertice.coordenadaX = novoValorVertice.first;
+            vertice.coordenadaY = novoValorVertice.second;
+        }
+    }
+
+    void aplicarRotacao() {
+        for (Vertice& vertice : this->vertices) {
+            pair<int, int> novoValorVertice = rotacao(vertice.coordenadaX, vertice.coordenadaY, valorCosseno, valorSeno);
+            vertice.coordenadaX = novoValorVertice.first;
+            vertice.coordenadaY = novoValorVertice.second;
+        }
+    }
+
+    void aplicarReflexao() {
+        for (Vertice& vertice : this->vertices) {
+            pair<int, int> novoValorVertice = reflexao(vertice.coordenadaX, vertice.coordenadaY, eixo);
+            vertice.coordenadaX = novoValorVertice.first;
+            vertice.coordenadaY = novoValorVertice.second;
+        }
     }
 };
 
@@ -89,6 +155,7 @@ class Paint {
 
 public:
     vector<Forma> formas;
+    vector<Vertice> figuraEmConstrucao;
 
     void addForma(Forma forma) {
         formas.push_back(forma);
@@ -97,12 +164,62 @@ public:
     vector<Forma> getFormas() {
         return this->formas;
     }
+
+    void addVerticeFiguraAtual(Vertice vertice) {
+        this->figuraEmConstrucao.push_back(vertice);
+    }
+
+    vector<Vertice> getFiguraAtual() {
+        return this->figuraEmConstrucao;
+    }
+
+    void cleanFiguraAtual() {
+        this->figuraEmConstrucao.clear();
+    }
+
+
+    void aplicarEscala(double valorEscala) {
+        for (Forma& forma : this->formas) {
+            forma.aplicarEscala(valorEscala);
+        }
+        isAplicarEscala = false;
+    }
+
+    void aplicarTranslacao(double valorTx, double valorTy) {
+        for (Forma& forma : this->formas) {
+            forma.aplicarTranslacao(valorTx, valorTy);
+        }
+        isAplicarTranslacao = false;
+    }
+
+    void aplicarCisalhamento(double valorCisalhamento) {
+        for (Forma& forma : this->formas) {
+            forma.aplicarCisalhamento(valorCisalhamento);
+        }
+        isAplicarCisalhamento = false;
+    }
+
+    void aplicarRotacao() {
+        for (Forma& forma : this->formas) {
+            forma.aplicarRotacao();
+        }
+        isAplicaoRotacao = false;
+    }
+
+    void aplicarReflexao() {
+        for (Forma& forma : this->formas) {
+            forma.aplicarReflexao();
+        }
+        isAplicarReflexao = false;
+    }
 };
 
 Paint paint;
 tipo_forma formaAtual = LINHA;
 vector<Vertice> verticesFormaCorrent;
 
+void reiniciarVariaveisAplicacoes();
+void drawPreview(vector<pair<int, int>> vertices);
 void salvarFigura(tipo_forma forma);
 void init(void);
 void reshape(int w, int h);
@@ -111,12 +228,14 @@ void keyboard(unsigned char key, int x, int y);
 void movimentacaoMouseComClick(int button, int state, int x, int y);
 void movimentoMousePassivo(int x, int y);
 void drawPixel(int x, int y);
+void drawPixelPintado(int x, int y, float cor[]);
 void drawFormas();
-// void retaImediata(double x1, double y1, double x2, double y2);
-// void bresenham(int x1, int y1, int x2, int y2);
-// void menu_popup(int value);
-
-
+void algoritmoFloodFill(int x, int y);
+void desenharMenuOpcoes();
+void adicionarTransformacoes();
+void desenharQuadroDeCores();
+void desenharQuadroOpcoes();
+void mapearClickNaAreaOpcoes(int x, int y);
 
 int main(int argc, char** argv)
 {
@@ -146,75 +265,144 @@ void init(void) {
 void movimentacaoMouseComClick(int button, int state, int x, int y) {
     switch (button) {
     case GLUT_LEFT_BUTTON:
-        switch (formaAtual)
-        {
-        case LINHA:
-            if (state == GLUT_DOWN) {
-                verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
-                contadorClicks++;
-                if (isPrimeiroClick) {
-                    isPrimeiroClick = !isPrimeiroClick;
-                    salvarFigura(LINHA);
-                    contadorClicks = 0;
-                    glutPostRedisplay();
-                }
-                else {
-                    drawPixel(x, y);
-                    isPrimeiroClick = !isPrimeiroClick;
-                }
-
-
-            }
-            break;
-        case CIRCULO:
-            if (state == GLUT_DOWN) {
-                verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
-                contadorClicks++;
-                if (isPrimeiroClick) {
-                    isPrimeiroClick = !isPrimeiroClick;
-                    salvarFigura(CIRCULO);
-                    contadorClicks = 0;
-                    glutPostRedisplay();
-                }
-                else {
-                    drawPixel(x, y);
-                    isPrimeiroClick = !isPrimeiroClick;
-                }
-                break;
-            }
-
-        case TRIANGULO:
-            if (state == GLUT_DOWN) {
-                verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
-                contadorClicks++;
-                if (contadorClicks == 3) {
-                    salvarFigura(TRIANGULO);
-                    contadorClicks = 0;
-                    glutPostRedisplay();
-                }
-                break;
-            }
-
-        case RETANGULO:
-            if (state == GLUT_DOWN) {
-                verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
-                contadorClicks++;
-                if (contadorClicks == 2) {
-                    salvarFigura(RETANGULO);
-                    contadorClicks = 0;
-                    glutPostRedisplay();
-                }
-                break;
-            }
-
-        default:
-            break;
+        if ((alturaJanela - y - 1) >= 600) {
+            mapearClickNaAreaOpcoes(x, (alturaJanela - y - 1));
         }
-        break;
+        else {
+
+            if (isAplicarPintura) {
+                algoritmoFloodFill(x, alturaJanela - y - 1);
+                isAplicarPintura = false;
+                return;
+            }
+
+            switch (formaAtual)
+            {
+            case LINHA:
+                if (state == GLUT_DOWN) {
+                    drawPixel(x, alturaJanela - y - 1);
+                    verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
+                    contadorClicks++;
+                    if (isPrimeiroClick) {
+                        isPrimeiroClick = !isPrimeiroClick;
+                        salvarFigura(LINHA);
+                        contadorClicks = 0;
+                        glutPostRedisplay();
+                    }
+                    else {
+                        isPrimeiroClick = !isPrimeiroClick;
+                    }
+
+
+                }
+                break;
+            case CIRCULO:
+                if (state == GLUT_DOWN) {
+                    drawPixel(x, alturaJanela - y - 1);
+                    verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
+                    contadorClicks++;
+                    if (isPrimeiroClick) {
+                        isPrimeiroClick = !isPrimeiroClick;
+                        salvarFigura(CIRCULO);
+                        contadorClicks = 0;
+                        glutPostRedisplay();
+                    }
+                    else {
+                        drawPixel(x, y);
+                        isPrimeiroClick = !isPrimeiroClick;
+                    }
+                    break;
+                }
+
+            case TRIANGULO:
+                if (state == GLUT_DOWN) {
+                    drawPixel(x, alturaJanela - y - 1);
+                    verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
+                    contadorClicks++;
+                    if (contadorClicks == 3) {
+                        salvarFigura(TRIANGULO);
+                        contadorClicks = 0;
+                        glutPostRedisplay();
+                    }
+                    break;
+                }
+
+            case RETANGULO:
+                if (state == GLUT_DOWN) {
+                    drawPixel(x, alturaJanela - y - 1);
+                    verticesFormaCorrent.emplace_back(x, alturaJanela - y - 1);
+                    contadorClicks++;
+                    if (contadorClicks == 2) {
+                        salvarFigura(RETANGULO);
+                        contadorClicks = 0;
+                        glutPostRedisplay();
+                    }
+                    break;
+                }
+
+            case POLIGANO:
+                if (state == GLUT_DOWN) {
+                    int xAtual = x;
+                    int yAtual = alturaJanela - y - 1;
+                    drawPixel(xAtual, yAtual);
+                    verticesFormaCorrent.emplace_back(xAtual, yAtual);
+                    contadorClicks++;
+
+                    if (contadorClicks > 1) {
+                        auto [x1, y1] = verticesFormaCorrent[verticesFormaCorrent.size() - 2];
+                        auto [x2, y2] = verticesFormaCorrent[verticesFormaCorrent.size() - 1];
+                        vector<pair<int, int>> vertices = calcularBresenhamPrimeiroOctante(x1, y1, x2, y2);
+                        for (auto v : vertices) {
+                            Vertice vertice(v.first, v.second);
+                            paint.addVerticeFiguraAtual(vertice);
+                        }
+                        glutPostRedisplay();
+                    }
+
+                    if (contadorClicks > 2) {
+                        Vertice vertice = verticesFormaCorrent[0];
+                        if ((vertice.coordenadaX == xAtual && vertice.coordenadaY == yAtual) or poliganoCompleto) {
+                            salvarFigura(POLIGANO);
+                            contadorClicks = 0;
+                            poliganoCompleto = false;
+                            glutPostRedisplay();
+                        }
+                    }
+                    break;
+                }
+
+            default:
+                break;
+            }
+            break;
 
     default:
         break;
+        }
     }
+}
+
+void salvarPoligano() {
+    vector<Vertice> vertices;
+    for (int i = 1; i < verticesFormaCorrent.size(); i++)
+    {
+        Vertice anterior = verticesFormaCorrent[i - 1];
+        Vertice atual = verticesFormaCorrent[i];
+        vector<pair<int, int>> verticesBresenham = calcularBresenhamPrimeiroOctante(anterior.coordenadaX, anterior.coordenadaY, atual.coordenadaX, atual.coordenadaY);
+        for (auto vertice : verticesBresenham) {
+            vertices.emplace_back(vertice.first, vertice.second);
+        }
+    }
+
+    Vertice primeiroVertice = verticesFormaCorrent[0];
+    Vertice ultimoVertice = verticesFormaCorrent[verticesFormaCorrent.size() - 1];
+    vector<pair<int, int>> verticesBresenham = calcularBresenhamPrimeiroOctante(ultimoVertice.coordenadaX, ultimoVertice.coordenadaY, primeiroVertice.coordenadaX, primeiroVertice.coordenadaY);
+    for (auto vertice : verticesBresenham) {
+        vertices.emplace_back(vertice.first, vertice.second);
+    }
+
+    Forma forma(paint.formas.size(), POLIGANO, vertices);
+    paint.addForma(forma);
 }
 
 void salvarRetangulo() {
@@ -310,6 +498,11 @@ void salvarFigura(tipo_forma tipoForma) {
         salvarRetangulo();
     }
 
+    if (tipoForma == POLIGANO) {
+        salvarPoligano();
+        paint.cleanFiguraAtual();
+    }
+
     verticesFormaCorrent.clear();
 }
 
@@ -323,7 +516,7 @@ void keyboard(unsigned char key, int x, int y) {
     if (key == 'l') {
         formaAtual = LINHA;
     }
-    if (key == 'o') {
+    if (key == 'c') {
         formaAtual = CIRCULO;
     }
     if (key == 't') {
@@ -332,7 +525,50 @@ void keyboard(unsigned char key, int x, int y) {
     if (key == 'r') {
         formaAtual = RETANGULO;
     }
+    if (key == 'p') {
+        formaAtual = POLIGANO;
+    }
+    if (key == '+') {
+        espessuraLinha++;
+    }
 
+    if (key == '-') {
+        if (espessuraLinha > 1) {
+            espessuraLinha--;
+        }
+    }
+
+    if (key == 'e') {
+        isAplicarEscala = true;
+    }
+
+    if (key == 'j') {
+        isAplicarTranslacao = true;
+    }
+
+    if (key == 'q') {
+        isAplicarCisalhamento = true;
+    }
+
+    if (key == 'w' && eixo != '#') {
+        isAplicarReflexao = true;
+    }
+
+    if (key == 'b') {
+        isAplicaoRotacao = true;
+    }
+
+    if (key == 'f' && !poliganoCompleto && verticesFormaCorrent.size() > 2) {
+        poliganoCompleto = true;
+    }
+
+    if (key == 'y' or key == 'x' or key == 'Y' or key == 'X') {
+        eixo = key;
+    }
+
+    if (key == 'z') {
+        isAplicarPintura = true;
+    }
 }
 
 void movimentoMousePassivo(int x, int y) {
@@ -356,23 +592,502 @@ void reshape(int w, int h)
 }
 
 void display(void) {
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glColor3f(0.0, 0.0, 0.0);
     drawFormas();
     draw_text_stroke(0, 0, "(" + to_string(mouseCoordenadaAtualX) + "," + to_string(mouseCoordenadaAtualY) + ")", 0.2);
+
+    glColor3f(0.85, 0.85, 0.85);
+    glPointSize(1);
+    glLineWidth(1);
+    glRectf(0, alturaJanela, larguraJanela, alturaJanela - 100);
+
+    desenharQuadroDeCores();
+
+    desenharQuadroOpcoes();
+
+    desenharMenuOpcoes();
+    adicionarTransformacoes();
+
     glutSwapBuffers();
 }
 
 void drawFormas() {
-    for (Forma forma : paint.getFormas()) {
+    if (isAplicarEscala) {
+        paint.aplicarEscala(2.0);
+    }
+
+    if (isAplicarTranslacao) {
+        paint.aplicarTranslacao(20.0, 20.0);
+    }
+
+    if (isAplicarCisalhamento) {
+        paint.aplicarCisalhamento(2);
+    }
+
+    if (isAplicaoRotacao) {
+        paint.aplicarRotacao();
+    }
+
+    if (isAplicarReflexao) {
+        paint.aplicarReflexao();
+    }
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    for (Forma& forma : paint.getFormas()) {
         for (Vertice vertice : forma.getVertices()) {
-            drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+            if (forma.isPintada) {
+                drawPixelPintado(vertice.coordenadaX, vertice.coordenadaY, forma.cor);
+            }
+            else {
+                drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+            }
+        }
+    }
+
+    for (Vertice vertice : paint.getFiguraAtual()) {
+        drawPixel(vertice.coordenadaX, vertice.coordenadaY);
+    }
+}
+
+void drawPreview(vector<pair<int, int>> vertices) {
+    glPointSize(5);
+    glBegin(GL_POINTS);
+
+    for (auto [x, y] : vertices) {
+        glVertex2f(x, y);
+    }
+
+    glEnd();
+}
+
+void drawPixel(int x, int y) {
+    glPointSize(espessuraLinha);
+    glBegin(GL_POINTS);
+    glVertex2f(x, y);
+    glEnd();
+    glFlush();
+}
+
+void drawPixelPintado(int x, int y, float cor[]) {
+    glPointSize(espessuraLinha);
+    glColor3f(cor[0], cor[1], cor[2]);
+    glBegin(GL_POINTS);
+    glVertex2f(x, y);
+    glEnd();
+    glFlush();
+}
+
+void reiniciarVariaveisAplicacoes() {
+    isAplicarEscala = false;
+    isAplicarTranslacao = false;
+}
+
+bool isPertencenteAForma(int x, int y, Forma& forma) {
+    int n = forma.vertices.size();
+    int count = 0, i, j;
+
+    for (i = 0, j = n - 1; i < n; j = i++) {
+        int yi = forma.vertices[i].coordenadaY;
+        int yj = forma.vertices[j].coordenadaY;
+        int xi = forma.vertices[i].coordenadaX;
+        int xj = forma.vertices[j].coordenadaX;
+
+        bool intersect = ((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (double)(yj - yi) + xi);
+        if (intersect) {
+            count++;
+        }
+    }
+
+    return count % 2 == 1;
+}
+
+void pintarForma(int x, int y, Forma& forma) {
+    vector<vector<bool>> visitados(larguraJanela, vector<bool>(alturaJanela, false));
+    queue<Vertice> vertices;
+    Vertice vertice(x, y);
+
+    vertices.push(vertice);
+    visitados[x][y] = true;
+
+    forma.definirCor(1, 0, 0);
+    while (!vertices.empty()) {
+        Vertice atual = vertices.front();
+        vertices.pop();
+        visitados[atual.coordenadaX][atual.coordenadaY] = true;
+
+        for (int i = 0; i < 4; i++)
+        {
+            x = atual.coordenadaX + dx[i];
+            y = atual.coordenadaY + dy[i];
+
+            if (x >= 0 && x < larguraJanela && y >= 0 && y < alturaJanela) {
+                if (!visitados[x][y]) {
+                    unsigned char pixelColor[3];
+                    glReadPixels(x, y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixelColor);
+                    if (pixelColor[0] != 0 && pixelColor[1] != 0 && pixelColor[2] != 0) {
+                        visitados[x][y] = true;
+                        Vertice novoVertice(x, y);
+                        vertices.push(novoVertice);
+                        forma.addVertice(x, y);
+                    }
+
+                }
+            }
         }
     }
 }
 
-void drawPixel(int x, int y) {
-    glBegin(GL_POINTS);
-    glVertex2f(x, y);
+void algoritmoFloodFill(int x, int y) {
+    for (Forma& forma : paint.formas) {
+        if (isPertencenteAForma(x, y, forma)) {
+            printf("[%d, %d] pertence a forma %d", x, y, forma.posicao);
+            pintarForma(x, y, forma);
+            return;
+        }
+    }
+}
+
+void desenharCirculo(int x1, int y1, int x2, int y2) {
+    vector<std::pair<int, int>> vertices = salvarCirculo(x1, y1, x2, y2);
+    for (auto [x, y] : vertices) {
+        drawPixel(x, y);
+    }
+}
+
+
+void desenharQuadroOpcoes() {
+    //Quadrado de opções de formas e transformações
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(10, alturaJanela - 10);
+    glVertex2f(260, alturaJanela - 10);
+    glVertex2f(260, alturaJanela - 90);
+    glVertex2f(10, alturaJanela - 90);
     glEnd();
+
+    //Linha do horizontal
+    glBegin(GL_LINES);
+    glVertex2f(10, alturaJanela - 50);
+    glVertex2f(260, alturaJanela - 50);
+    glEnd();
+
+    //1° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(50, alturaJanela - 10);
+    glVertex2f(50, alturaJanela - 90);
+    glEnd();
+
+    //2° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(100, alturaJanela - 10);
+    glVertex2f(100, alturaJanela - 90);
+    glEnd();
+
+    //3° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(150, alturaJanela - 10);
+    glVertex2f(150, alturaJanela - 90);
+    glEnd();
+
+    //4° linha vertical
+    glBegin(GL_LINES);
+    glVertex2f(200, alturaJanela - 10);
+    glVertex2f(200, alturaJanela - 90);
+    glEnd();
+
+}
+
+void desenharQuadroDeCores() {
+    //Quadrado de cores
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(300, alturaJanela - 10);
+    glVertex2f(550, alturaJanela - 10);
+    glVertex2f(550, alturaJanela - 90);
+    glVertex2f(300, alturaJanela - 90);
+    glEnd();
+
+    //COR
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(300, alturaJanela - 10);
+    glVertex2f(350, alturaJanela - 10);
+    glVertex2f(350, alturaJanela - 50);
+    glVertex2f(300, alturaJanela - 50);
+    glEnd();
+
+    //COR
+    glColor3f(0.5f, 0.0f, 0.5f);
+    glBegin(GL_QUADS);
+    glVertex2f(350, alturaJanela - 10);
+    glVertex2f(400, alturaJanela - 10);
+    glVertex2f(400, alturaJanela - 50);
+    glVertex2f(350, alturaJanela - 50);
+    glEnd();
+
+    //COR
+    glColor3f(0.54f, 0.17f, 0.89f);
+    glBegin(GL_QUADS);
+    glVertex2f(400, alturaJanela - 10);
+    glVertex2f(450, alturaJanela - 10);
+    glVertex2f(450, alturaJanela - 50);
+    glVertex2f(400, alturaJanela - 50);
+    glEnd();
+
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(450, alturaJanela - 10);
+    glVertex2f(500, alturaJanela - 10);
+    glVertex2f(500, alturaJanela - 50);
+    glVertex2f(450, alturaJanela - 50);
+    glEnd();
+
+    glColor3f(0.54f, 0.17f, 0.89f);
+    glBegin(GL_QUADS);
+    glVertex2f(500, alturaJanela - 10);
+    glVertex2f(550, alturaJanela - 10);
+    glVertex2f(550, alturaJanela - 50);
+    glVertex2f(500, alturaJanela - 50);
+    glEnd();
+
+    //Cores de baixo
+    //COR
+    glColor3f(1.0f, 0.5f, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(300, alturaJanela - 50);
+    glVertex2f(350, alturaJanela - 50);
+    glVertex2f(350, alturaJanela - 90);
+    glVertex2f(300, alturaJanela - 90);
+    glEnd();
+
+    //COR
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(350, alturaJanela - 50);
+    glVertex2f(400, alturaJanela - 50);
+    glVertex2f(400, alturaJanela - 90);
+    glVertex2f(350, alturaJanela - 90);
+    glEnd();
+
+    //COR
+    glColor3f(1.0f, 0.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(400, alturaJanela - 50);
+    glVertex2f(450, alturaJanela - 50);
+    glVertex2f(450, alturaJanela - 90);
+    glVertex2f(400, alturaJanela - 90);
+    glEnd();
+
+    glColor3f(0.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(450, alturaJanela - 50);
+    glVertex2f(500, alturaJanela - 50);
+    glVertex2f(500, alturaJanela - 90);
+    glVertex2f(450, alturaJanela - 90);
+    glEnd();
+
+    glColor3f(0.0f, 0.5f, 0.5f);
+    glBegin(GL_QUADS);
+    glVertex2f(500, alturaJanela - 50);
+    glVertex2f(550, alturaJanela - 50);
+    glVertex2f(550, alturaJanela - 90);
+    glVertex2f(500, alturaJanela - 90);
+    glEnd();
+
+    //Linha do Meio
+    glBegin(GL_LINES);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex2f(300, alturaJanela - 50);
+    glVertex2f(550, alturaJanela - 50);
+    glEnd();
+
+    glColor3f(0.0f, 0.0f, 0.0f);
+    draw_text_stroke(590, alturaJanela - 30, "Cor Selecionada", 0.1);
+    //Cor Atual selecionada
+    glColor3f(corAtual[0], corAtual[1], corAtual[2]);
+    glBegin(GL_QUADS);
+    glVertex2f(600, alturaJanela - 50);
+    glVertex2f(650, alturaJanela - 50);
+    glVertex2f(650, alturaJanela - 90);
+    glVertex2f(600, alturaJanela - 90);
+    glEnd();
+}
+
+void desenharMenuOpcoes() {
+
+    //Triangulo
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(20, alturaJanela - 40);
+    glVertex2f(40, alturaJanela - 40);
+    glVertex2f(30, alturaJanela - 20);
+    glEnd();
+
+    //Linha
+    glPointSize(5);
+    glBegin(GL_LINES);
+    glVertex2f(60, alturaJanela - 20);
+    glVertex2f(80, alturaJanela - 40);
+    glEnd();
+
+    //Poligano
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(110, alturaJanela - 30);
+    glVertex2f(130, alturaJanela - 20);
+    glVertex2f(140, alturaJanela - 30);
+    glVertex2f(140, alturaJanela - 40);
+    glVertex2f(110, alturaJanela - 30);
+    glEnd();
+
+    //Quadrado
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(160, alturaJanela - 20);
+    glVertex2f(190, alturaJanela - 20);
+    glVertex2f(190, alturaJanela - 40);
+    glVertex2f(160, alturaJanela - 40);
+    glEnd();
+
+    desenharCirculo(220, alturaJanela - 30, 230, alturaJanela - 30);
+
+}
+
+void adicionarTransformacoes() {
+
+    draw_text_stroke(20, alturaJanela - 80, "TRS", 0.1);
+    draw_text_stroke(60, alturaJanela - 80, "ECA", 0.1);
+    draw_text_stroke(110, alturaJanela - 80, "CISA", 0.1);
+    draw_text_stroke(160, alturaJanela - 80, "ROTA", 0.1);
+    draw_text_stroke(210, alturaJanela - 80, "REFLX", 0.1);
+
+}
+
+void mapearClickNaAreaOpcoes(int x, int y) {
+    printf("Clicou em [%d, %d]", x, y);
+    printf("Esperado [%d, %d]", alturaJanela - 50, alturaJanela - 90);
+    if (x >= 10 && x <= 50 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        formaAtual = TRIANGULO;
+        printf("Clicou no triangulo");
+    }
+
+    if (x >= 51 && x <= 100 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        formaAtual = LINHA;
+        printf("Clicou na Linha");
+    }
+
+    if (x >= 101 && x <= 150 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        formaAtual = POLIGANO;
+        printf("Clicou na Poligano");
+    }
+
+    if (x >= 151 && x <= 200 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        formaAtual = RETANGULO;
+        printf("Clicou na Retangulo");
+    }
+
+    if (x >= 201 && x <= 250 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        formaAtual = CIRCULO;
+        printf("Clicou na Circulo");
+    }
+
+    if (x >= 10 && x <= 50 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarTranslacao = true;
+        printf("Clicou em translação");
+    }
+
+    if (x >= 51 && x <= 100 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarEscala = true;
+        printf("Clicou em Escala");
+    }
+
+    if (x >= 101 && x <= 150 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarCisalhamento = true;
+        printf("Clicou em Cisalhamento");
+    }
+
+    if (x >= 151 && x <= 200 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicaoRotacao = true;
+        printf("Clicou em Rotação");
+    }
+
+    if (x >= 201 && x <= 250 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarReflexao = true;
+        printf("Clicou em Reflexão");
+    }
+
+    //Mapeamento para aplicar pintura.
+    if (x >= 300 && x <= 350 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.0f;
+        corAtual[1] = 0.0f;
+        corAtual[2] = 1.0f;
+    }
+
+    if (x >= 351 && x <= 400 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.5f;
+        corAtual[1] = 0.0f;
+        corAtual[2] = 0.5f;
+    }
+
+    if (x >= 401 && x <= 450 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.54f;
+        corAtual[1] = 0.17f;
+        corAtual[2] = 0.89f;
+    }
+
+    if (x >= 451 && x <= 500 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        isAplicarPintura = true;
+        corAtual[0] = 1.0f;
+        corAtual[1] = 1.0f;
+        corAtual[2] = 0.0f;
+    }
+
+    if (x >= 501 && x <= 550 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.54f;
+        corAtual[1] = 0.17f;
+        corAtual[2] = 0.89f;
+    }
+
+    if (x >= 300 && x <= 350 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        corAtual[0] = 1.0f;
+        corAtual[1] = 0.5f;
+        corAtual[2] = 0.0f;
+    }
+
+    if (x >= 351 && x <= 400 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        corAtual[0] = 1.0f;
+        corAtual[1] = 0.0f;
+        corAtual[2] = 0.0f;
+    }
+
+    if (x >= 401 && x <= 450 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        corAtual[0] = 1.0f;
+        corAtual[1] = 0.0f;
+        corAtual[2] = 1.0f;
+    }
+
+    if (x >= 451 && x <= 500 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.0f;
+        corAtual[1] = 1.0f;
+        corAtual[2] = 1.0f;
+    }
+
+    if (x >= 501 && x <= 550 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
+        isAplicarPintura = true;
+        corAtual[0] = 0.0f;
+        corAtual[1] = 0.5f;
+        corAtual[2] = 0.5f;
+    }
 }
