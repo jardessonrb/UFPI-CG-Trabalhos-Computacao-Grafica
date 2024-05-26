@@ -149,6 +149,26 @@ struct Forma {
             vertice.coordenadaY = novoValorVertice.second;
         }
     }
+
+    double minDistanciaAOrigem(int x, int y) {
+        return sqrt(x * x + y * y);
+    }
+
+    pair<int, int> calcularMenorVertice() {
+        double minDistancia = this->minDistanciaAOrigem(this->vertices[0].coordenadaX, this->vertices[0].coordenadaY);
+        int x = this->vertices[0].coordenadaX, y = this->vertices[0].coordenadaY;
+        for (Vertice v : this->vertices) {
+            double distanciaAtual = this->minDistanciaAOrigem(v.coordenadaX, v.coordenadaY);
+
+            if (minDistancia > distanciaAtual) {
+                minDistancia = distanciaAtual;
+                x = v.coordenadaX;
+                y = v.coordenadaY;
+            }
+        }
+
+        return make_pair(x, y);
+    }
 };
 
 class Paint {
@@ -177,10 +197,12 @@ public:
         this->figuraEmConstrucao.clear();
     }
 
-
     void aplicarEscala(double valorEscala) {
         for (Forma& forma : this->formas) {
+            auto [x, y] = forma.calcularMenorVertice();
+            forma.aplicarTranslacao(-x, -y);
             forma.aplicarEscala(valorEscala);
+            forma.aplicarTranslacao(x, y);
         }
         isAplicarEscala = false;
     }
@@ -194,14 +216,24 @@ public:
 
     void aplicarCisalhamento(double valorCisalhamento) {
         for (Forma& forma : this->formas) {
+            auto [x, y] = forma.calcularMenorVertice();
+            forma.aplicarTranslacao(-x, -y);
             forma.aplicarCisalhamento(valorCisalhamento);
+            forma.aplicarTranslacao(x, y);
         }
         isAplicarCisalhamento = false;
     }
 
     void aplicarRotacao() {
         for (Forma& forma : this->formas) {
+            int x, y;
+            Vertice vertice = forma.vertices[0];
+            x = vertice.coordenadaX;
+            y = vertice.coordenadaY;
+
+            forma.aplicarTranslacao(-x, -y);
             forma.aplicarRotacao();
+            forma.aplicarTranslacao(x, y);
         }
         isAplicaoRotacao = false;
     }
@@ -487,6 +519,7 @@ void salvarFigura(tipo_forma tipoForma) {
     paint.addForma(forma);
 
     verticesFormaCorrent.clear();
+    paint.figuraEmConstrucao.clear();
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -692,8 +725,6 @@ void drawFormas() {
             }
             rasterizarCirculo(forma);
         }
-
-
     }
 
     for (Vertice vertice : paint.getFiguraAtual()) {
