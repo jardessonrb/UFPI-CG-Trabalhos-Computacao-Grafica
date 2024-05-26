@@ -29,7 +29,7 @@ using namespace std;
 
 bool isAplicarEscala = false, isAplicarTranslacao = false,
 isAplicarCisalhamento = false, isAplicarReflexao = false, isAplicaoRotacao = false, isAplicarPintura = false;
-char eixo = 'x';
+char eixo = 'y';
 float corAtual[3] = { 0.0f, 0.5f, 0.5f };
 
 double valorCosseno = 0.7, valorSeno = 0.7;
@@ -530,6 +530,19 @@ void keyboard(unsigned char key, int x, int y) {
     }
 
     if (key == 'f') {
+        if (verticesFormaCorrent.size() > 2) {
+            Vertice verticePrimeiro = verticesFormaCorrent[0];
+            Vertice verticeUltimo = verticesFormaCorrent[verticesFormaCorrent.size() - 1];
+            glBegin(GL_LINES);
+            glVertex2f(verticeUltimo.coordenadaX, verticeUltimo.coordenadaY);
+            glVertex2f(verticePrimeiro.coordenadaX, verticeUltimo.coordenadaY);
+            glEnd();
+
+            salvarFigura(POLIGANO);
+            contadorClicks = 0;
+            poliganoCompleto = false;
+            glutPostRedisplay();
+        }
         poliganoCompleto = true;
     }
 }
