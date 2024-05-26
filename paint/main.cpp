@@ -9,7 +9,6 @@
 #include <GL/glu.h>
 #endif
 
-#include <bits/stdc++.h>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -18,6 +17,10 @@
 #include "bresenham.h"
 #include "rasterizacao_circulo.h"
 #include "transformacoes.h"
+#include "botoes_cores.h"
+#include "botoes_opcoes.h"
+#include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -263,12 +266,8 @@ void drawPixel(int x, int y);
 void drawPixelPintado(int x, int y, float cor[]);
 void drawFormas();
 void algoritmoFloodFill(int x, int y);
-void desenharMenuOpcoes();
 void adicionarTransformacoes();
-void desenharQuadroDeCores();
-void desenharQuadroOpcoes();
 void mapearClickNaAreaOpcoes(int x, int y);
-void desenharOpcoesEixoEPintura();
 
 int main(int argc, char** argv)
 {
@@ -524,68 +523,14 @@ void salvarFigura(tipo_forma tipoForma) {
 }
 
 void keyboard(unsigned char key, int x, int y) {
-    int modifiers = glutGetModifiers();
 
     if (key == ESC) {
         exit(EXIT_SUCCESS);
     }
 
-    // if (key == 'l') {
-    //     formaAtual = LINHA;
-    // }
-    // if (key == 'c') {
-    //     formaAtual = CIRCULO;
-    // }
-    // if (key == 't') {
-    //     formaAtual = TRIANGULO;
-    // }
-    // if (key == 'r') {
-    //     formaAtual = RETANGULO;
-    // }
-    // if (key == 'p') {
-    //     formaAtual = POLIGANO;
-    // }
-    // if (key == '+') {
-    //     espessuraLinha++;
-    // }
-
-    // if (key == '-') {
-    //     if (espessuraLinha > 1) {
-    //         espessuraLinha--;
-    //     }
-    // }
-
-    // if (key == 'e') {
-    //     isAplicarEscala = true;
-    // }
-
-    // if (key == 'j') {
-    //     isAplicarTranslacao = true;
-    // }
-
-    // if (key == 'q') {
-    //     isAplicarCisalhamento = true;
-    // }
-
-    // if (key == 'w' && eixo != '#') {
-    //     isAplicarReflexao = true;
-    // }
-
-    // if (key == 'b') {
-    //     isAplicaoRotacao = true;
-    // }
-
-    // if (key == 'f' && !poliganoCompleto && verticesFormaCorrent.size() > 2) {
-    //     poliganoCompleto = true;
-    // }
-
-    // if (key == 'y' or key == 'x' or key == 'Y' or key == 'X') {
-    //     eixo = key;
-    // }
-
-    // if (key == 'z') {
-    //     isAplicarPintura = true;
-    // }
+    if (key == 'f') {
+        poliganoCompleto = true;
+    }
 }
 
 void movimentoMousePassivo(int x, int y) {
@@ -623,13 +568,13 @@ void display(void) {
     glLineWidth(1);
     glRectf(0, alturaJanela, larguraJanela, alturaJanela - 100);
 
-    desenharQuadroDeCores();
+    desenharQuadroDeCores(corAtual, alturaJanela);
 
-    desenharOpcoesEixoEPintura();
+    desenharOpcoesEixoEPintura(alturaJanela);
 
-    desenharQuadroOpcoes();
+    desenharQuadroOpcoes(alturaJanela);
 
-    desenharMenuOpcoes();
+    desenharMenuOpcoes(alturaJanela);
     adicionarTransformacoes();
 
     glutSwapBuffers();
@@ -834,234 +779,6 @@ void algoritmoFloodFill(int x, int y) {
     }
 }
 
-void desenharCirculo(int x1, int y1, int x2, int y2) {
-    vector<std::pair<int, int>> vertices = salvarCirculo(x1, y1, x2, y2);
-    for (auto [x, y] : vertices) {
-        drawPixel(x, y);
-    }
-}
-
-
-void desenharQuadroOpcoes() {
-    //Quadrado de opções de formas e transformações
-    glColor3f(0, 0, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(10, alturaJanela - 10);
-    glVertex2f(260, alturaJanela - 10);
-    glVertex2f(260, alturaJanela - 90);
-    glVertex2f(10, alturaJanela - 90);
-    glEnd();
-
-    //Linha do horizontal
-    glBegin(GL_LINES);
-    glVertex2f(10, alturaJanela - 50);
-    glVertex2f(260, alturaJanela - 50);
-    glEnd();
-
-    //1° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(50, alturaJanela - 10);
-    glVertex2f(50, alturaJanela - 90);
-    glEnd();
-
-    //2° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(100, alturaJanela - 10);
-    glVertex2f(100, alturaJanela - 90);
-    glEnd();
-
-    //3° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(150, alturaJanela - 10);
-    glVertex2f(150, alturaJanela - 90);
-    glEnd();
-
-    //4° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(200, alturaJanela - 10);
-    glVertex2f(200, alturaJanela - 90);
-    glEnd();
-
-}
-
-void desenharQuadroDeCores() {
-    //Quadrado de cores
-    glColor3f(0, 0, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(350, alturaJanela - 10);
-    glVertex2f(600, alturaJanela - 10);
-    glVertex2f(600, alturaJanela - 90);
-    glVertex2f(350, alturaJanela - 90);
-    glEnd();
-
-    //COR
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(350, alturaJanela - 10);
-    glVertex2f(400, alturaJanela - 10);
-    glVertex2f(400, alturaJanela - 50);
-    glVertex2f(350, alturaJanela - 50);
-    glEnd();
-
-    //COR
-    glColor3f(0.5f, 0.0f, 0.5f);
-    glBegin(GL_QUADS);
-    glVertex2f(400, alturaJanela - 10);
-    glVertex2f(450, alturaJanela - 10);
-    glVertex2f(450, alturaJanela - 50);
-    glVertex2f(400, alturaJanela - 50);
-    glEnd();
-
-    //COR
-    glColor3f(0.54f, 0.17f, 0.89f);
-    glBegin(GL_QUADS);
-    glVertex2f(450, alturaJanela - 10);
-    glVertex2f(500, alturaJanela - 10);
-    glVertex2f(500, alturaJanela - 50);
-    glVertex2f(450, alturaJanela - 50);
-    glEnd();
-
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(500, alturaJanela - 10);
-    glVertex2f(550, alturaJanela - 10);
-    glVertex2f(550, alturaJanela - 50);
-    glVertex2f(500, alturaJanela - 50);
-    glEnd();
-
-    glColor3f(0.54f, 0.17f, 0.89f);
-    glBegin(GL_QUADS);
-    glVertex2f(550, alturaJanela - 10);
-    glVertex2f(600, alturaJanela - 10);
-    glVertex2f(600, alturaJanela - 50);
-    glVertex2f(550, alturaJanela - 50);
-    glEnd();
-
-    //Cores de baixo
-    //COR
-    glColor3f(1.0f, 0.5f, 0.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(350, alturaJanela - 50);
-    glVertex2f(400, alturaJanela - 50);
-    glVertex2f(400, alturaJanela - 90);
-    glVertex2f(350, alturaJanela - 90);
-    glEnd();
-
-    //COR
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(400, alturaJanela - 50);
-    glVertex2f(450, alturaJanela - 50);
-    glVertex2f(450, alturaJanela - 90);
-    glVertex2f(400, alturaJanela - 90);
-    glEnd();
-
-    //COR
-    glColor3f(1.0f, 0.0f, 1.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(450, alturaJanela - 50);
-    glVertex2f(500, alturaJanela - 50);
-    glVertex2f(500, alturaJanela - 90);
-    glVertex2f(450, alturaJanela - 90);
-    glEnd();
-
-    glColor3f(0.0f, 1.0f, 1.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(500, alturaJanela - 50);
-    glVertex2f(550, alturaJanela - 50);
-    glVertex2f(550, alturaJanela - 90);
-    glVertex2f(500, alturaJanela - 90);
-    glEnd();
-
-    glColor3f(0.0f, 0.5f, 0.5f);
-    glBegin(GL_QUADS);
-    glVertex2f(550, alturaJanela - 50);
-    glVertex2f(600, alturaJanela - 50);
-    glVertex2f(600, alturaJanela - 90);
-    glVertex2f(550, alturaJanela - 90);
-    glEnd();
-
-    //Linha do Meio
-    glBegin(GL_LINES);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glVertex2f(350, alturaJanela - 50);
-    glVertex2f(600, alturaJanela - 50);
-    glEnd();
-
-    glColor3f(0.0f, 0.0f, 0.0f);
-    draw_text_stroke(620, alturaJanela - 30, "Cor Selecionada", 0.07);
-    //Cor Atual selecionada
-    glColor3f(corAtual[0], corAtual[1], corAtual[2]);
-    glBegin(GL_QUADS);
-    glVertex2f(630, alturaJanela - 50);
-    glVertex2f(680, alturaJanela - 50);
-    glVertex2f(680, alturaJanela - 90);
-    glVertex2f(630, alturaJanela - 90);
-    glEnd();
-}
-
-void desenharMenuOpcoes() {
-
-    //Triangulo
-    glColor3f(0, 0, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(20, alturaJanela - 40);
-    glVertex2f(40, alturaJanela - 40);
-    glVertex2f(30, alturaJanela - 20);
-    glEnd();
-
-    //Linha
-    glPointSize(5);
-    glBegin(GL_LINES);
-    glVertex2f(60, alturaJanela - 20);
-    glVertex2f(80, alturaJanela - 40);
-    glEnd();
-
-    //Poligano
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(110, alturaJanela - 30);
-    glVertex2f(130, alturaJanela - 20);
-    glVertex2f(140, alturaJanela - 30);
-    glVertex2f(140, alturaJanela - 40);
-    glVertex2f(110, alturaJanela - 30);
-    glEnd();
-
-    //Quadrado
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(160, alturaJanela - 20);
-    glVertex2f(190, alturaJanela - 20);
-    glVertex2f(190, alturaJanela - 40);
-    glVertex2f(160, alturaJanela - 40);
-    glEnd();
-
-    desenharCirculo(220, alturaJanela - 30, 230, alturaJanela - 30);
-}
-
-void desenharOpcoesEixoEPintura() {
-    glColor3f(0, 0, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(270, alturaJanela - 10);
-    glVertex2f(340, alturaJanela - 10);
-    glVertex2f(340, alturaJanela - 90);
-    glVertex2f(270, alturaJanela - 90);
-    glEnd();
-
-    //1° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(270, alturaJanela - 35);
-    glVertex2f(340, alturaJanela - 35);
-    glEnd();
-
-    //2° linha vertical
-    glBegin(GL_LINES);
-    glVertex2f(270, alturaJanela - 60);
-    glVertex2f(340, alturaJanela - 60);
-    glEnd();
-
-    draw_text_stroke(280, alturaJanela - 30, "Eixo-X", 0.1);
-    draw_text_stroke(280, alturaJanela - 50, "Eixo-Y", 0.1);
-    draw_text_stroke(280, alturaJanela - 80, "Pintar", 0.1);
-}
 
 void adicionarTransformacoes() {
 
@@ -1074,56 +791,44 @@ void adicionarTransformacoes() {
 }
 
 void mapearClickNaAreaOpcoes(int x, int y) {
-    printf("Clicou em [%d, %d]", x, y);
-    printf("Esperado [%d, %d]", alturaJanela - 50, alturaJanela - 90);
     if (x >= 10 && x <= 50 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         formaAtual = TRIANGULO;
-        printf("Clicou no triangulo");
     }
 
     if (x >= 51 && x <= 100 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         formaAtual = LINHA;
-        printf("Clicou na Linha");
     }
 
     if (x >= 101 && x <= 150 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         formaAtual = POLIGANO;
-        printf("Clicou na Poligano");
     }
 
     if (x >= 151 && x <= 200 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         formaAtual = RETANGULO;
-        printf("Clicou na Retangulo");
     }
 
     if (x >= 201 && x <= 250 && y <= (alturaJanela - 10) && y >= (alturaJanela - 50)) {
         formaAtual = CIRCULO;
-        printf("Clicou na Circulo");
     }
 
     if (x >= 10 && x <= 50 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicarTranslacao = true;
-        printf("Clicou em translação");
     }
 
     if (x >= 51 && x <= 100 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicarEscala = true;
-        printf("Clicou em Escala");
     }
 
     if (x >= 101 && x <= 150 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicarCisalhamento = true;
-        printf("Clicou em Cisalhamento");
     }
 
     if (x >= 151 && x <= 200 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicaoRotacao = true;
-        printf("Clicou em Rotação");
     }
 
     if (x >= 201 && x <= 250 && y <= (alturaJanela - 50) && y >= (alturaJanela - 90)) {
         isAplicarReflexao = true;
-        printf("Clicou em Reflexão");
     }
 
     //Mapeamento para aplicar pintura.

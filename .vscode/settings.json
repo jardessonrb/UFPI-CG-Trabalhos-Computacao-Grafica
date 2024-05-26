@@ -10,6 +10,9 @@
     "files.exclude": {
         "mingw*": true,
         "Program.exe": true
+    },
+    "files.associations": {
+        "utility": "cpp"
     }
     // ,
     // "run.inputFile": "${workspaceFolder}\\Input.txt",

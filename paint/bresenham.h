@@ -1,6 +1,7 @@
 #ifndef bresenham_h
 #define bresenham_h
-#include <bits/stdc++.h>
+#include <utility>
+#include <vector>
 
 using namespace std;
 

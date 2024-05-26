@@ -1,6 +1,6 @@
 #ifndef rasterizacao_circulo_h
 #define rasterizacao_circulo_h
-#include <bits/stdc++.h>
+#include <vector>
 
 using namespace std;
 
@@ -55,5 +55,16 @@ vector<pair<int, int>> salvarCirculo(int x1, int y1, int x2, int y2) {
     return vertices;
 }
 
+
+void desenharCirculo(int x1, int y1, int x2, int y2) {
+    vector<std::pair<int, int>> vertices = salvarCirculo(x1, y1, x2, y2);
+    for (auto [x, y] : vertices) {
+        glPointSize(1);
+        glBegin(GL_POINTS);
+        glVertex2f(x, y);
+        glEnd();
+        glFlush();
+    }
+}
 
 #endif
