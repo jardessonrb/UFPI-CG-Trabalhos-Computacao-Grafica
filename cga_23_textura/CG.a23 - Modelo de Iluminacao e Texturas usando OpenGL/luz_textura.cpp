@@ -44,7 +44,7 @@ bool use_color_material = false; // Determina se vamos usar a glColor como param
 
 bool use_depth_test = true; // Determina se vamos usar Z-buffering
 
-bool use_light = true; // Determina se liga a luz
+bool use_light = false; // Determina se liga a luz
 
 GLint apply_texture = GL_ADD; //Determina como a textura sera aplicada no objeto
 std::string apply_texture_name = "GL_ADD"; //nome da fucao que sera usada para aplicar a textura no objeto
@@ -53,22 +53,53 @@ std::string apply_texture_name = "GL_ADD"; //nome da fucao que sera usada para a
 unsigned int id_texturas[QUANT_TEX]; //Matriz para armazenar os identificadores de textura
 
 // Vertices do objeto
-#define N_VERTICES 4
+// #define N_VERTICES 4
+// const GLfloat vertex_coords[N_VERTICES][3] = {
+//     { -0.5, -0.272,  0.289 },
+//     {  0.5, -0.272,  0.289 },
+//     {  0.0, -0.272, -0.577 },
+//     {  0.0,  0.544,  0.000 }
+// };
+
+// // Faces do objeto (triangulos)
+// #define N_FACES 4
+// const GLuint faces[N_FACES][3] = {
+//     {3, 0, 1},
+//     {3, 1, 2},
+//     {3, 0, 2},
+//     {0, 2, 1}
+// };
+
+
+
+#define N_VERTICES 8
 const GLfloat vertex_coords[N_VERTICES][3] = {
-    { -0.5, -0.272,  0.289 },
-    {  0.5, -0.272,  0.289 },
-    {  0.0, -0.272, -0.577 },
-    {  0.0,  0.544,  0.000 }
+   { -0.5, -0.5, -0.5 }, // Vertice 0
+    {  0.5, -0.5, -0.5 }, // Vertice 1
+    {  0.5,  0.5, -0.5 }, // Vertice 2
+    { -0.5,  0.5, -0.5 }, // Vertice 3
+    { -0.5, -0.5,  0.5 }, // Vertice 4
+    {  0.5, -0.5,  0.5 }, // Vertice 5
+    {  0.5,  0.5,  0.5 }, // Vertice 6
+    { -0.5,  0.5,  0.5 }  // Vertice 7
 };
 
-// Faces do objeto (triangulos)
-#define N_FACES 4
+#define N_FACES 12
 const GLuint faces[N_FACES][3] = {
-    {3, 0, 1},
-    {3, 1, 2},
-    {3, 0, 2},
-    {0, 2, 1}
+    {3, 2, 0}, // Face inferior 
+    {1, 2, 0}, // Face inferior 
+    {6, 5, 7}, // Face superior 
+    {4, 5, 7}, // Face superior
+    {4, 1, 5}, // Face frontal 
+    {2, 1, 5}, // Face frontal 
+    {5, 2, 6}, // Face direita 
+    {3, 2, 6}, // Face direita 
+    {6, 3, 7}, // Face traseira 
+    {0, 3, 7}, // Face traseira 
+    {7, 0, 4}, // Face esquerda 
+    {1, 4, 0}  // Face esquerda 
 };
+
 
 
 // Vetores normais dos vertices do objeto
@@ -195,7 +226,7 @@ void init_glut(const char* nome_janela, int argc, char** argv) {
     glBindTexture(GL_TEXTURE_2D, id_texturas[0]);
 
     //Cria a extrutura da textura na mem�ria
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data_3);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data_2);
 
     //Definicao dos parametros da textura
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

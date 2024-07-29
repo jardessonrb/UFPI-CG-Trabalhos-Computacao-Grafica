@@ -14,7 +14,7 @@ private:
 
     vector3d ponto_camera;
     vector3d up_camera;
-    float escala_velocidade = 20.0f;
+    float escala_velocidade = 10.0f;
 
     float valor_yaw;
     float valor_PI = 3.14159265;
@@ -27,6 +27,7 @@ public:
     static Camera initOrigem();
     ~Camera();
     void ativar();
+    void ativarVisaoCima();
     void frente();
     void tras();
     void esquerda();

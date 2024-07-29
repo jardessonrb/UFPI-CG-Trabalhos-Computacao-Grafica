@@ -86,3 +86,9 @@ void Camera::atualizarYaw() {
     m_dir.z = -cos(angulo);
     m_dir.normalizar();
 }
+
+void Camera::ativarVisaoCima() {
+    gluLookAt(150, 370, 150, // Posição da câmera (x, y, z)
+        150, -0.5, 150,    // Ponto para onde a câmera está olhando (x, y, z)
+        0.0, 0.0, 1.0); //UP da camera
+}

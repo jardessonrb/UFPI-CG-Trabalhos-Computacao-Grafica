@@ -19,6 +19,8 @@
 #include "glut_text.h"
 #include "vector3d.h"
 #include "Camera.cpp"
+#include "Board.cpp"
+#include "cg/CGQuadrado.cpp"
 #include "textureRGB.h"
 
 /*
@@ -42,29 +44,50 @@ GLdouble cam_y1 = 500.0;
 GLdouble cam_z1 = 850.0;
 
 
-/*
- *  Definicao dos parametros do modelo de iluminacao
- */
-GLfloat light_pos[] = { -2.0, 2.0, 2.0, 0.0 };
-GLfloat light_Ka[] = { 0.4, 0.4, 0.4, 0.0 };
-GLfloat light_Kd[] = { 1.0, 1.0, 1.0, 0.0 };
-GLfloat light_Ks[] = { 1.0, 1.0, 1.0, 0.0 };
+// // Vetores normais dos vertices do objeto
+// const GLfloat vertex_normals[N_VERTICES][3] = {
+//     { -0.81670904, -0.33290246,  0.47134089 },
+//     {  0.81670904, -0.33290252,  0.47134092 },
+//     {  0.00000000, -0.33331525, -0.94281548 },
+//     {  0.00000000,  1.00000000, -0.00019993 }
+// };
 
-/*
- *  Definicao dos parametros do material para o modelo de iluminacao
- *  Parametros para material amarelado, cor de latao (Brass)
- */
-GLfloat material_Ka[] = { 0.33, 0.22, 0.03, 1.00 };
-GLfloat material_Kd[] = { 0.78, 0.57, 0.11, 1.00 };
-GLfloat material_Ks[] = { 0.99, 0.94, 0.81, 1.00 };
-GLfloat material_Ke[] = { 0.00, 0.00, 0.00, 0.00 };
-GLfloat material_Se = 28;
+// // Coordenadas de textura dos vertices do objeto
+// const GLfloat tex_coords[N_FACES][3][2] = {
+//     {{0.5, 0.000}, {0.0, 0.875}, {1.0, 0.875}},
+//     {{0.5, 0.000}, {0.0, 0.875}, {1.0, 0.875}},
+//     {{0.0, 0.875}, {1.0, 0.875}, {0.5, 0.000}},
+//     {{0.5, 0.000}, {1.0, 0.875}, {0.0, 0.875}}
+// };
+
+// /*
+//  *  Definicao dos parametros do modelo de iluminacao
+//  */
+// GLfloat light_pos[] = { -2.0, 2.0, 2.0, 0.0 };
+// GLfloat light_Ka[] = { 0.4, 0.4, 0.4, 0.0 };
+// GLfloat light_Kd[] = { 1.0, 1.0, 1.0, 0.0 };
+// GLfloat light_Ks[] = { 1.0, 1.0, 1.0, 0.0 };
+
+// /*
+//  *  Definicao dos parametros do material para o modelo de iluminacao
+//  *  Parametros para material amarelado, cor de latao (Brass)
+//  */
+// GLfloat material_Ka[] = { 0.33, 0.22, 0.03, 1.00 };
+// GLfloat material_Kd[] = { 0.78, 0.57, 0.11, 1.00 };
+// GLfloat material_Ks[] = { 0.99, 0.94, 0.81, 1.00 };
+// GLfloat material_Ke[] = { 0.00, 0.00, 0.00, 0.00 };
+// GLfloat material_Se = 28;
 
 
-// gluLookAt(0, 40, 400, // Posição da câmera (x, y, z)
+
+// gluLookAt(0, 40, 100, // Posição da câmera (x, y, z)
 //         0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
 //         0.0, 1.0, 0.0); //UP da camera
-Camera camera(vector3d(0, 40, 400), vector3d(0, 0.5, -300), vector3d(0, 1.0, 0));
+Camera camera(vector3d(0, 20, 400), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
+Board board;
+CGQuadrado cgrQuadrado(chao_coord_y);
+bool camera_primeira_pessoa = false;
+
 
 bool keyStates[KEY_COUNT];
 
@@ -113,9 +136,6 @@ void keyboard_special(int key, int x, int y);
 void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
-void desenhar_limite_chao();
-void desenhar_linhas_cenarios();
-void desenhar_chao();
 
 /*
  * Funcao principal
@@ -156,52 +176,52 @@ void init_glut(const char* nome_janela, int argc, char** argv) {
     glutTimerFunc(1000 / fps_desejado, timer, 0); //(mseg, timer, value)
 
 
-    // /*
-    //  *  Ativacao dos parametros do modelo de iluminacao para a Luz 0
-    //  */
-    // glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-    // glLightfv(GL_LIGHT0, GL_AMBIENT, light_Ka);
-    // glLightfv(GL_LIGHT0, GL_DIFFUSE, light_Kd);
-    // glLightfv(GL_LIGHT0, GL_SPECULAR, light_Ks);
+    /*
+     *  Ativacao dos parametros do modelo de iluminacao para a Luz 0
+     */
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_Ka);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_Kd);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_Ks);
 
-    // /*
-    //  *  Ativacao dos parametros do material para uso do modelo de iluminacao
-    //  *  Para usar este material a iluminacao (GL_LIGHTING) deve estar ativa
-    //  *  e a cor do material (GL_COLOR_MATERIAL) desativada
-    //  */
-    // glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material_Ka);
-    // glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_Kd);
-    // glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material_Ks);
-    // glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_Ke);
-    // glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material_Se);
+    /*
+     *  Ativacao dos parametros do material para uso do modelo de iluminacao
+     *  Para usar este material a iluminacao (GL_LIGHTING) deve estar ativa
+     *  e a cor do material (GL_COLOR_MATERIAL) desativada
+     */
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, material_Ka);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_Kd);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, material_Ks);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, material_Ke);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material_Se);
 
-    // glEnable(GL_LIGHTING); // Ativa o modelo de iluminacao
-    // glEnable(GL_LIGHT0); // Ativa a Luz 0. O OpenGL suporta pelo menos 8 pontos de luz.
+    glEnable(GL_LIGHTING); // Ativa o modelo de iluminacao
+    glEnable(GL_LIGHT0); // Ativa a Luz 0. O OpenGL suporta pelo menos 8 pontos de luz.
 
 
-    // /*
-    //  *  Configurando o OpenGL para o uso de Texturas
-    //  */
-    //  //Gera nomes identificadores (IDs) para as texturas
-    // glGenTextures(QUANT_TEX, id_texturas);
+    /*
+     *  Configurando o OpenGL para o uso de Texturas
+     */
+     //Gera nomes identificadores (IDs) para as texturas
+    glGenTextures(QUANT_TEX, id_texturas);
 
-    // //Ativa a textura que sera criada ou usada no momento, por meio do seu ID.
-    // glBindTexture(GL_TEXTURE_2D, id_texturas[0]);
+    //Ativa a textura que sera criada ou usada no momento, por meio do seu ID.
+    glBindTexture(GL_TEXTURE_2D, id_texturas[0]);
 
-    // //Cria a extrutura da textura na mem�ria
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data_3);
+    //Cria a extrutura da textura na mem�ria
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, texture_data_3);
 
-    // //Definicao dos parametros da textura
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    //Definicao dos parametros da textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-    // //Define como a textura sera aplicada ao objeto
-    // glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, apply_texture);
+    //Define como a textura sera aplicada ao objeto
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, apply_texture);
 
-    // //Ativa a visualizacao de texturas 2D (Texturizacao 2D)
-    // glEnable(GL_TEXTURE_2D);
+    //Ativa a visualizacao de texturas 2D (Texturizacao 2D)
+    glEnable(GL_TEXTURE_2D);
 
     // Ativa o modelo de sombreamento de "Gouraud" (Smooth
     glShadeModel(GL_SMOOTH);
@@ -268,7 +288,13 @@ void display(void) {
     // Apaga o video e o depth buffer, e reinicia a matriz
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    camera.ativar();
+
+    if (camera_primeira_pessoa) {
+        camera.ativar();
+    }
+    else {
+        camera.ativarVisaoCima();
+    }
 
     glColor3f(R, G, B); //Define a cor do objeto
 
@@ -278,10 +304,11 @@ void display(void) {
     // glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0); // seleciona a cor preta para o texto
     draw_text_stroke(0, 40, "Bomberman - FPS: " + to_string(fps));
-    desenhar_linhas_cenarios();
 
     glPushMatrix();
-    desenhar_limite_chao();
+    board.desenhar_cenario();
+    // cgrQuadrado.desenhaQuadrado(0, 0, 20);
+    cgrQuadrado.desenhaObstaculos(300, 300, 20);
     glPopMatrix();
     // Troca os buffers, mostrando o que acabou de ser desenhado
     glutSwapBuffers();
@@ -313,7 +340,6 @@ void timer(int value) {
     glutTimerFunc(1000 / fps_desejado, timer, 0);
     glutPostRedisplay(); // Manda redesenhar a tela em cada frame
 }
-
 
 void keyboardOnpress(unsigned char key, int x, int y) {
     if (keyStates['w']) {
@@ -351,6 +377,12 @@ void keyboard(unsigned char key, int x, int y) {
         // Tecle < ou > para alterar o FPS desejado
     case ',': case '<': if (fps_desejado > 1) fps_desejado -= 1; break;
     case '.': case '>': if (fps_desejado * 2 < MAX_FPS) fps_desejado += 1; break;
+
+
+
+    case 'c':
+        camera_primeira_pessoa = !camera_primeira_pessoa;
+        break;
     case ESC: exit(EXIT_SUCCESS); break;
     }
 }
@@ -403,8 +435,6 @@ void keyboard_special(int key, int x, int y) {
 
     }
 }
-
-
 void mouse_click_callback(int button, int state, int x, int y) {
 
     if (state == GLUT_DOWN) {
@@ -437,51 +467,5 @@ void mouse_passive_callback(int x, int y) {
 }
 void mouse_active_click__callback(int x, int y) {
     // printf("Movimento com botão pressionado em (%d, %d)\n", x, y);
-}
-
-
-void desenhar_limite_chao() {
-    // Define a cor do cubo
-    glColor3f(0.0, 0.0, 1.0); // Azul
-    // Translada o cubo para a posição desejada
-    glPushMatrix();
-    glTranslatef(-275.0, 30.0, 0.0); // Move o cubo para a posição (-300, -0.5, 300) com largura e altura de 50
-    glutSolidCube(50.0); // Desenha um cubo com 50 unidades de lado
-    glPopMatrix();
-}
-
-void desenhar_chao() {
-    glColor3f(0.0f, 0.0f, 0.0f); // Define a cor preta
-    glBegin(GL_QUADS); // Inicia o desenho de um quadrilátero
-    glVertex3f(-300.0f, chao_coord_y, -300.0f); // Primeiro vértice
-    glVertex3f(300.0f, chao_coord_y, -300.0f);  // Segundo vértice
-    glVertex3f(300.0f, chao_coord_y, 300.0f);   // Terceiro vértice
-    glVertex3f(-300.0f, chao_coord_y, 300.0f);  // Quarto vértice
-    glEnd(); // Termina o desenho do quadrilátero
-}
-
-void desenhar_linhas_cenarios() {
-    desenhar_chao();
-    int largura_linha = 50;
-    int tamanho_comprimento = 300;
-    int tamanho_largura = 300;
-
-    glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_LINES);
-    for (int i = -tamanho_comprimento; i <= tamanho_comprimento; i += largura_linha)
-    {
-
-        //Linha comprimento
-        glVertex3f(i, chao_coord_y, tamanho_comprimento);
-        glVertex3f(i, chao_coord_y, -tamanho_comprimento);
-
-        //Linha largura
-        glVertex3f(-tamanho_largura, chao_coord_y, i);
-        glVertex3f(tamanho_largura, chao_coord_y, i);
-
-
-    }
-    glEnd();
-
 }
 
