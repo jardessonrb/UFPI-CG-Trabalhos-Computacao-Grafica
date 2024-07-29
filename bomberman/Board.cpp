@@ -82,4 +82,13 @@ void Board::desenhar_cenario() {
     desenhar_chao();
     desenhar_linhas_no_chao();
     iniciar_matriz();
+    // for (int x = 0; x < this->largura; x++)
+    // {
+    //     for (int z = 0; z < this->comprimento; z++)
+    //     {
+    //         printf("[%d]", this->coordenada_chao_board[x][z]);
+    //     }
+    //     printf("\n");
+    // }
+
 }

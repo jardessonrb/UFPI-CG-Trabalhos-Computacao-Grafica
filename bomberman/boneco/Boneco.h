@@ -1,10 +1,10 @@
-#ifndef CAMERA_H
-#define CAMERA_H
-#include "vector3d.h"
+#ifndef BONECO_H
+#define BONECO_H
+#include "../vector3d.h"
 
-enum Sentido { FRENTE, DIREITA, COSTA, ESQUERDA };
+// enum SentidoB { FRENTE, DIREITA, COSTA, ESQUERDA };
 
-class Camera {
+class Boneco {
 private:
     vector3d m_pos;
     vector3d m_dir;
@@ -12,8 +12,8 @@ private:
     vector3d m_up;
     vector3d m_velocidade;
 
-    vector3d ponto_camera;
-    vector3d up_camera;
+    vector3d ponto_Boneco;
+    vector3d up_Boneco;
     float escala_velocidade = 10.0f;
 
     float valor_yaw;
@@ -26,10 +26,10 @@ private:
     vector3d pos_costas = vector3d(0, 0, 1);
 
 public:
-    Camera(vector3d pos);
-    Camera(vector3d pos, vector3d ponto, vector3d up);
-    static Camera initOrigem();
-    ~Camera();
+    Boneco(vector3d pos);
+    Boneco(vector3d pos, vector3d ponto, vector3d up);
+    static Boneco initOrigem();
+    ~Boneco();
     void ativar();
     void ativarVisaoCima();
     void frente();
@@ -38,12 +38,13 @@ public:
     void direita();
     void atualizarYaw(float dYaw);
     void atualizarYaw();
-    // void alterarDirecao(Sentido sentidoEscolhido);
+    // void alterarDirecao(SentidoB sentidoEscolhido);
     void virarDireita();
     void virarEsquerda();
+    vector3d getPos();
 
 private:
     float convertParaRadianos(float angulo);
 };
 
-#endif // CAMERA_H
+#endif // BONECO_H

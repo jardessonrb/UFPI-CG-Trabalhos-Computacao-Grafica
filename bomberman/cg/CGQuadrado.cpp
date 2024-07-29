@@ -103,6 +103,7 @@ void CGQuadrado::desenhaQuadrado(float x, float z, float tamanho) {
 }
 
 void CGQuadrado::desenhaObstaculos(int comprimento, int largura, float tamanho) {
+    glColor3f(0.0, 0.0, 1.0);
     //Lado esquerdo e direito
     for (int z = 0; z < comprimento; z += tamanho)
     {
@@ -131,9 +132,7 @@ void CGQuadrado::desenhaObstaculos(int comprimento, int largura, float tamanho) 
 
                 desenha_linha = !desenha_linha;
             }
-
         }
-
         desenha = !desenha;
     }
 }

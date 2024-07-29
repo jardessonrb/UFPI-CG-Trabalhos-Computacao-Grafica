@@ -22,6 +22,7 @@
 #include "Board.cpp"
 #include "cg/CGQuadrado.cpp"
 #include "textureRGB.h"
+#include "boneco/Boneco.cpp"
 
 /*
  * Declaracao de constantes e variaveis
@@ -83,9 +84,10 @@ GLdouble cam_z1 = 850.0;
 // gluLookAt(0, 40, 100, // Posição da câmera (x, y, z)
 //         0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
 //         0.0, 1.0, 0.0); //UP da camera
-Camera camera(vector3d(0, 20, 400), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
+Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
 Board board;
 CGQuadrado cgrQuadrado(chao_coord_y);
+Boneco boneco(vector3d(20, chao_coord_y, 280));
 bool camera_primeira_pessoa = false;
 
 
@@ -309,6 +311,9 @@ void display(void) {
     board.desenhar_cenario();
     // cgrQuadrado.desenhaQuadrado(0, 0, 20);
     cgrQuadrado.desenhaObstaculos(300, 300, 20);
+    glColor3f(1.0, 0.0, 0.0);
+    vector3d coordenada_boneco = boneco.getPos();
+    cgrQuadrado.desenhaQuadrado(coordenada_boneco.x, coordenada_boneco.z, 20);
     glPopMatrix();
     // Troca os buffers, mostrando o que acabou de ser desenhado
     glutSwapBuffers();
@@ -345,18 +350,22 @@ void keyboardOnpress(unsigned char key, int x, int y) {
     if (keyStates['w']) {
         printf("pra cima");
         camera.frente();
+        boneco.frente();
     }
     if (keyStates['a']) {
         printf("pra esquerda");
         camera.esquerda();
+        boneco.esquerda();
     }
     if (keyStates['d']) {
         printf("pra direita");
         camera.direita();
+        boneco.direita();
     }
     if (keyStates['s']) {
         printf("pra baixo");
         camera.tras();
+        boneco.tras();
     }
 
     glutPostRedisplay();
@@ -370,19 +379,28 @@ void keyboard(unsigned char key, int x, int y) {
     keyboardOnpress(key, x, y);
 
     switch (key) {
-        // Tecle - ou + para alterar o incremento do angulo de rotacao
-    case '-': case '_': if (graus > 1) graus -= 1; break;
-    case '+': case '=': if (graus < 360) graus += 1; break;
+        //     // Tecle - ou + para alterar o incremento do angulo de rotacao
+        // case '-': case '_': if (graus > 1) graus -= 1; break;
+        // case '+': case '=': if (graus < 360) graus += 1; break;
 
-        // Tecle < ou > para alterar o FPS desejado
-    case ',': case '<': if (fps_desejado > 1) fps_desejado -= 1; break;
-    case '.': case '>': if (fps_desejado * 2 < MAX_FPS) fps_desejado += 1; break;
+        //     // Tecle < ou > para alterar o FPS desejado
+        // case ',': case '<': if (fps_desejado > 1) fps_desejado -= 1; break;
+        // case '.': case '>': if (fps_desejado * 2 < MAX_FPS) fps_desejado += 1; break;
 
 
 
     case 'c':
         camera_primeira_pessoa = !camera_primeira_pessoa;
         break;
+
+        // case 'd':
+        //     camera.virarDireita();
+        //     break;
+
+        // case 'a':
+        //     camera.virarEsquerda();
+        //     break;
+
     case ESC: exit(EXIT_SUCCESS); break;
     }
 }
