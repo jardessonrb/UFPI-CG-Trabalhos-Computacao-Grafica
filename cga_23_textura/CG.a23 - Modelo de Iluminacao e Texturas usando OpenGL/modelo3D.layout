@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Layout>
+	<Files>
+		<File Name="modelo3D.cpp" Top="No" Tabpos="1" TopLine="199">
+			<Cursor Line="389" Column="41"/>
+		</File>
+		<File Name="glm.cpp" Top="Yes" Tabpos="2" TopLine="256">
+			<Cursor Line="282" Column="18"/>
+		</File>
+		<File Name="glut_text.h" Top="No" Tabpos="3" TopLine="16">
+			<Cursor Line="1" Column="1"/>
+		</File>
+		<File Name="glm.h" Top="No" Tabpos="4" TopLine="1">
+			<Cursor Line="21" Column="23"/>
+		</File>
+	</Files>
+</Layout>

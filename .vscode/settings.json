@@ -12,7 +12,8 @@
         "Program.exe": true
     },
     "files.associations": {
-        "utility": "cpp"
+        "utility": "cpp",
+        "cstdio": "cpp"
     }
     // ,
     // "run.inputFile": "${workspaceFolder}\\Input.txt",
