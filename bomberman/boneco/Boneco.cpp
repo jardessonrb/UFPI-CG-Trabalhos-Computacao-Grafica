@@ -11,10 +11,11 @@
 #include "../vector3d.h"
 #include <cstdio>
 #include "Boneco.h"
+#include "../cg/CGQuadrado.h"
 
 Boneco::Boneco(vector3d pos) {
     m_pos = pos;
-    ponto_Boneco = vector3d(0, 0, 0);
+    ponto_Boneco = vector3d(0, 1, 0);
     up_Boneco = vector3d(0, 0, 0);
 
     m_dir = vector3d(0, 0, -1);
@@ -48,7 +49,7 @@ void Boneco::frente() {
     ponto_Boneco.x = m_pos.x;
     ponto_Boneco.z = 0;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Boneco::tras() {
@@ -58,7 +59,7 @@ void Boneco::tras() {
     ponto_Boneco.x = m_pos.x;
     ponto_Boneco.z = 300;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Boneco::esquerda() {
@@ -69,7 +70,7 @@ void Boneco::esquerda() {
     ponto_Boneco.x = 0;
     ponto_Boneco.z = m_pos.z;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Boneco::direita() {
@@ -79,7 +80,7 @@ void Boneco::direita() {
     ponto_Boneco.x = 300;
     ponto_Boneco.z = m_pos.z;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 float Boneco::convertParaRadianos(float angulo) {
@@ -87,15 +88,6 @@ float Boneco::convertParaRadianos(float angulo) {
     return (angulo * valor_PI) / 180.0f;
 }
 
-void Boneco::atualizarYaw(float dYaw) {
-    valor_yaw += dYaw;
-}
-void Boneco::atualizarYaw() {
-    float angulo = convertParaRadianos(valor_yaw);
-    m_dir.x = sin(angulo);
-    m_dir.z = -cos(angulo);
-    m_dir.normalizar();
-}
 
 void Boneco::ativarVisaoCima() {
     gluLookAt(150, 370, 150, // Posição da câmera (x, y, z)
@@ -108,93 +100,81 @@ vector3d Boneco::getPos() {
 }
 
 
-// void Boneco::alterarDirecao(SentidoB sentidoEscolhido) {
-//     if (sentidoEscolhido == sentido) {
-//         return;
-//     }
+vector3d Boneco::getPosTem() {
+    return this->m_pos_temp;
+}
 
-//     if (sentidoEscolhido == FRENTE) {
-//         sentido = FRENTE;
-//         ponto_Boneco.z = 0;
-//         ponto_Boneco.x = m_pos.x;
+void Boneco::commitPos() {}
 
-//         m_dir = this->pos_frente;
-//     }
+void Boneco::frente(std::vector<std::vector<int>>& coordenadas) {
+    m_velocidade = m_dir * escala_velocidade;
+    vector3d pos_temp = m_velocidade + m_pos;
 
-//     if (sentidoEscolhido == DIREITA) {
-//         sentido = DIREITA;
-//         ponto_Boneco.x = 300;
-//         ponto_Boneco.z = m_pos.z;
+    if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
+        m_pos = pos_temp;
+        ponto_Boneco.x = m_pos.x;
+        ponto_Boneco.z = 0;
+    }
 
-//         m_dir = this->pos_direita;
-//     }
+}
 
-//     if (sentidoEscolhido == COSTA) {
-//         sentido = COSTA;
-//         ponto_Boneco.x = m_pos.x;
-//         ponto_Boneco.z = 300;
+void Boneco::direita(std::vector<std::vector<int>>& coordenadas) {
+    m_velocidade = m_left * (-escala_velocidade);
+    vector3d pos_temp = m_pos + m_velocidade;
 
-//         m_dir = this->pos_costas;
-//     }
+    if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
+        m_pos = pos_temp;
+        ponto_Boneco.x = 300;
+        ponto_Boneco.z = m_pos.z;
+    }
+}
 
-//     if (sentidoEscolhido == ESQUERDA) {
-//         sentido = ESQUERDA;
-//         ponto_Boneco.x = 0;
-//         ponto_Boneco.z = m_pos.z;
+void Boneco::esquerda(std::vector<std::vector<int>>& coordenadas) {
+    m_velocidade = m_left * escala_velocidade;
+    vector3d pos_temp = m_pos + m_velocidade;
 
-//         m_dir = this->pos_esquerda;
-//     }
-// }
+    if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
+        m_pos = pos_temp;
+        ponto_Boneco.x = 0;
+        ponto_Boneco.z = m_pos.z;
+    }
 
-// void Boneco::virarDireita() {
-//     if (sentido == FRENTE) {
-//         sentido = DIREITA;
-//         ponto_Boneco.x = 300;
-//         m_dir = this->pos_direita;
-//     }
+}
 
-//     if (sentido == DIREITA) {
-//         sentido = COSTA;
-//         ponto_Boneco.z = 300;
-//         m_dir = this->pos_costas;
-//     }
+void Boneco::tras(std::vector<std::vector<int>>& coordenadas) {
+    m_velocidade = m_dir * (-escala_velocidade);
+    vector3d pos_temp = m_velocidade + m_pos;
+    if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
+        m_pos = pos_temp;
+        ponto_Boneco.x = m_pos.x;
+        ponto_Boneco.z = 300;
+    }
+}
 
-//     if (sentido == COSTA) {
-//         sentido = ESQUERDA;
+bool Boneco::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z) {
+    int x_linha = x + 5;
+    int z_linha = z + 5;
 
-//         ponto_Boneco.x = 0;
-//         m_dir = this->pos_esquerda;
-//     }
+    if (x < 0 || x > 300 || x_linha < 0 || x_linha > 300) {
+        return true;
+    }
 
-//     if (sentido == ESQUERDA) {
-//         sentido = FRENTE;
-//         m_dir = this->pos_frente;
-//         ponto_Boneco.z = 0;
-//     }
-// }
+    if (z < 0 || z > 300 || z_linha < 0 || z_linha > 300) {
+        return true;
+    }
 
-// void Boneco::virarEsquerda() {
-//     if (sentido == FRENTE) {
-//         sentido = ESQUERDA;
-//         m_dir = this->pos_esquerda;
-//         ponto_Boneco.x = 0;
-//     }
+    if (coordenadas[x][z] == 1 || coordenadas[x][z_linha] == 1 || coordenadas[x_linha][z] == 1 || coordenadas[x_linha][z_linha] == 1) {
+        // printf("\nxz[%d][%d] <=> xz_linha[%d][%d] \n", x, z, x_linha, z_linha);
+        // printf("[%d] <=> [%d] <=> [%d] <=> [%d]", coordenadas[x][z], coordenadas[x][z_linha], coordenadas[x_linha][z], coordenadas[x_linha][z_linha]);
+        return true;
+    }
 
-//     if (sentido == ESQUERDA) {
-//         sentido = COSTA;
-//         m_dir = this->pos_costas;
-//         ponto_Boneco.z = 300;
-//     }
+    return false;
+}
 
-//     if (sentido == COSTA) {
-//         sentido = DIREITA;
-//         m_dir = this->pos_direita;
-//         ponto_Boneco.x = 300;
-//     }
-
-//     if (sentido == DIREITA) {
-//         sentido = FRENTE;
-//         m_dir = this->pos_frente;
-//         ponto_Boneco.z = 0;
-//     }
-// }
+void Boneco::soltarBomba() {
+    CGQuadrado cgquadrado(-0.5);
+    glColor3f(1.0, 1.0, 0.0);
+    cgquadrado.desenhaQuadrado(this->m_pos.x, this->m_pos.z, 3);
+    // printf("soltando bomba em [%d][%d]", this->m_pos.x, this->m_pos.z);
+}

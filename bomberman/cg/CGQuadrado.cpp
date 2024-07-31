@@ -50,6 +50,9 @@ CGQuadrado::CGQuadrado(float alturaY) {
     this->alturaY = alturaY;
 }
 
+CGQuadrado::CGQuadrado() {
+}
+
 CGQuadrado::~CGQuadrado() {
 
 }

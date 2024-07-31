@@ -48,7 +48,7 @@ void Camera::frente() {
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 0;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::tras() {
@@ -58,7 +58,7 @@ void Camera::tras() {
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 300;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::esquerda() {
@@ -69,7 +69,7 @@ void Camera::esquerda() {
     ponto_camera.x = 0;
     ponto_camera.z = m_pos.z;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::direita() {
@@ -79,7 +79,7 @@ void Camera::direita() {
     ponto_camera.x = 300;
     ponto_camera.z = m_pos.z;
 
-    printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 float Camera::convertParaRadianos(float angulo) {
@@ -98,9 +98,13 @@ void Camera::atualizarYaw() {
 }
 
 void Camera::ativarVisaoCima() {
-    gluLookAt(150, 370, 150, // Posição da câmera (x, y, z)
-        150, -0.5, 150,    // Ponto para onde a câmera está olhando (x, y, z)
-        0.0, 0.0, 1.0); //UP da camera
+    gluLookAt(150, 200, 550, // Posição da câmera (x, y, z)
+        150, 0, 0,    // Ponto para onde a câmera está olhando (x, y, z)
+        0.0, 0.0, -2.0); //UP da camera
+
+    // gluLookAt(150, 350, 150, // Posição da câmera (x, y, z)
+    //     150, 0, 150,    // Ponto para onde a câmera está olhando (x, y, z)
+    //     0.0, 0.0, 1.0); //UP da camera
 }
 
 

@@ -44,51 +44,19 @@ GLdouble cam_x1 = 0.0;
 GLdouble cam_y1 = 500.0;
 GLdouble cam_z1 = 850.0;
 
-
-// // Vetores normais dos vertices do objeto
-// const GLfloat vertex_normals[N_VERTICES][3] = {
-//     { -0.81670904, -0.33290246,  0.47134089 },
-//     {  0.81670904, -0.33290252,  0.47134092 },
-//     {  0.00000000, -0.33331525, -0.94281548 },
-//     {  0.00000000,  1.00000000, -0.00019993 }
-// };
-
-// // Coordenadas de textura dos vertices do objeto
-// const GLfloat tex_coords[N_FACES][3][2] = {
-//     {{0.5, 0.000}, {0.0, 0.875}, {1.0, 0.875}},
-//     {{0.5, 0.000}, {0.0, 0.875}, {1.0, 0.875}},
-//     {{0.0, 0.875}, {1.0, 0.875}, {0.5, 0.000}},
-//     {{0.5, 0.000}, {1.0, 0.875}, {0.0, 0.875}}
-// };
-
-// /*
-//  *  Definicao dos parametros do modelo de iluminacao
-//  */
-// GLfloat light_pos[] = { -2.0, 2.0, 2.0, 0.0 };
-// GLfloat light_Ka[] = { 0.4, 0.4, 0.4, 0.0 };
-// GLfloat light_Kd[] = { 1.0, 1.0, 1.0, 0.0 };
-// GLfloat light_Ks[] = { 1.0, 1.0, 1.0, 0.0 };
-
-// /*
-//  *  Definicao dos parametros do material para o modelo de iluminacao
-//  *  Parametros para material amarelado, cor de latao (Brass)
-//  */
-// GLfloat material_Ka[] = { 0.33, 0.22, 0.03, 1.00 };
-// GLfloat material_Kd[] = { 0.78, 0.57, 0.11, 1.00 };
-// GLfloat material_Ks[] = { 0.99, 0.94, 0.81, 1.00 };
-// GLfloat material_Ke[] = { 0.00, 0.00, 0.00, 0.00 };
-// GLfloat material_Se = 28;
-
-
-
 // gluLookAt(0, 40, 100, // Posição da câmera (x, y, z)
 //         0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
 //         0.0, 1.0, 0.0); //UP da camera
 Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
-Board board;
+Board board((CGQuadrado(chao_coord_y)));
 CGQuadrado cgrQuadrado(chao_coord_y);
-Boneco boneco(vector3d(20, chao_coord_y, 280));
+Boneco boneco(vector3d(25, chao_coord_y, 260));
 bool camera_primeira_pessoa = false;
+bool isSoltarBomba = false, isBombaEstouro = false;
+GLuint segundosPassados = 0;
+GLuint tempoBombaAtiva = 0, qntBombas = 0;
+GLuint tempoBombaEstouro = 0;
+vector3d posicao_bomba(0, 0, 0);
 
 
 bool keyStates[KEY_COUNT];
@@ -138,6 +106,8 @@ void keyboard_special(int key, int x, int y);
 void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
+void desenharJogo();
+void estouroBomba(int x, int z, int tamanho);
 
 /*
  * Funcao principal
@@ -308,12 +278,7 @@ void display(void) {
     draw_text_stroke(0, 40, "Bomberman - FPS: " + to_string(fps));
 
     glPushMatrix();
-    board.desenhar_cenario();
-    // cgrQuadrado.desenhaQuadrado(0, 0, 20);
-    cgrQuadrado.desenhaObstaculos(300, 300, 20);
-    glColor3f(1.0, 0.0, 0.0);
-    vector3d coordenada_boneco = boneco.getPos();
-    cgrQuadrado.desenhaQuadrado(coordenada_boneco.x, coordenada_boneco.z, 20);
+    desenharJogo();
     glPopMatrix();
     // Troca os buffers, mostrando o que acabou de ser desenhado
     glutSwapBuffers();
@@ -348,25 +313,33 @@ void timer(int value) {
 
 void keyboardOnpress(unsigned char key, int x, int y) {
     if (keyStates['w']) {
-        printf("pra cima");
         camera.frente();
-        boneco.frente();
+        boneco.frente(board.getCoordenadas());
     }
     if (keyStates['a']) {
-        printf("pra esquerda");
+        // printf("pra esquerda");
         camera.esquerda();
-        boneco.esquerda();
+        // boneco.esquerda();
+        boneco.esquerda(board.getCoordenadas());
     }
     if (keyStates['d']) {
-        printf("pra direita");
+        // printf("pra direita");
         camera.direita();
-        boneco.direita();
+        // boneco.direita();
+        boneco.direita(board.getCoordenadas());
     }
     if (keyStates['s']) {
-        printf("pra baixo");
+        // printf("pra baixo");
         camera.tras();
-        boneco.tras();
+        // boneco.tras();
+        boneco.tras(board.getCoordenadas());
     }
+
+    // if (keyStates['b']) {
+    //     tempoBombaAtiva = glutGet(GLUT_ELAPSED_TIME);
+    //     isSoltarBomba = true;
+    // }
+
 
     glutPostRedisplay();
 }
@@ -391,6 +364,15 @@ void keyboard(unsigned char key, int x, int y) {
 
     case 'c':
         camera_primeira_pessoa = !camera_primeira_pessoa;
+        break;
+    case 'b':
+        if (!isSoltarBomba && !isBombaEstouro) {
+            tempoBombaAtiva = (glutGet(GLUT_ELAPSED_TIME) + 3000);
+            isSoltarBomba = true;
+            isBombaEstouro = false;
+            qntBombas = 1;
+            posicao_bomba = boneco.getPos();
+        }
         break;
 
         // case 'd':
@@ -477,7 +459,7 @@ void mouse_click_callback(int button, int state, int x, int y) {
 
         // camera.atualizarYaw(dx);
         // camera.atualizarYaw();
-        printf("Botão liberado em (%d, %d)\n", x, y);
+        // printf("Botão liberado em (%d, %d)\n", x, y);
     }
 }
 void mouse_passive_callback(int x, int y) {
@@ -485,5 +467,48 @@ void mouse_passive_callback(int x, int y) {
 }
 void mouse_active_click__callback(int x, int y) {
     // printf("Movimento com botão pressionado em (%d, %d)\n", x, y);
+}
+
+
+void estouroBomba(int x, int z, int tamanho) {
+    for (int i = 0, z_linha_mais = z, z_linha_menos = z; i < 3; i++, z_linha_mais += tamanho, z_linha_menos -= tamanho)
+    {
+        board.soltarBomba(x, z_linha_mais, tamanho);
+        board.soltarBomba(x, z_linha_menos, tamanho);
+    }
+
+    for (int i = 0, x_linha_mais = x, x_linha_menos = x; i < 3; i++, x_linha_mais += tamanho, x_linha_menos -= tamanho)
+    {
+        board.soltarBomba(x_linha_mais, z, tamanho);
+        board.soltarBomba(x_linha_menos, z, tamanho);
+    }
+
+}
+
+void desenharJogo() {
+    board.desenhar_cenario();
+    glColor3f(1.0, 0.0, 0.0);
+    vector3d coordenada_boneco = boneco.getPos();
+    board.desenharPersonagem(coordenada_boneco.x, coordenada_boneco.z, 10);
+
+    if (isSoltarBomba && tempoBombaAtiva > glutGet(GLUT_ELAPSED_TIME)) {
+        board.soltarBomba(posicao_bomba.x, posicao_bomba.z, 5);
+    }
+    else if (tempoBombaAtiva < glutGet(GLUT_ELAPSED_TIME)) {
+        isSoltarBomba = false;
+
+        if (!isBombaEstouro && qntBombas == 1) {
+            tempoBombaEstouro = (glutGet(GLUT_ELAPSED_TIME) + 2000);
+            isBombaEstouro = true;
+            qntBombas = 0;
+        }
+    }
+
+    if (isBombaEstouro && (tempoBombaEstouro > glutGet(GLUT_ELAPSED_TIME))) {
+        estouroBomba(posicao_bomba.x, posicao_bomba.z, 20);
+    }
+    else if (tempoBombaEstouro < glutGet(GLUT_ELAPSED_TIME)) {
+        isBombaEstouro = false;
+    }
 }
 

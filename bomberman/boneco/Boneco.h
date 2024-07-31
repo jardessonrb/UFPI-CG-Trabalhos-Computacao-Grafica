@@ -7,6 +7,7 @@
 class Boneco {
 private:
     vector3d m_pos;
+    vector3d m_pos_temp;
     vector3d m_dir;
     vector3d m_left;
     vector3d m_up;
@@ -14,7 +15,7 @@ private:
 
     vector3d ponto_Boneco;
     vector3d up_Boneco;
-    float escala_velocidade = 10.0f;
+    float escala_velocidade = 5.0f;
 
     float valor_yaw;
     float valor_PI = 3.14159265;
@@ -24,6 +25,8 @@ private:
     vector3d pos_esquerda = vector3d(-1, 0, 0);
     vector3d pos_frente = vector3d(0, 0, -1);
     vector3d pos_costas = vector3d(0, 0, 1);
+
+    bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
 
 public:
     Boneco(vector3d pos);
@@ -36,12 +39,15 @@ public:
     void tras();
     void esquerda();
     void direita();
-    void atualizarYaw(float dYaw);
-    void atualizarYaw();
-    // void alterarDirecao(SentidoB sentidoEscolhido);
-    void virarDireita();
-    void virarEsquerda();
+    vector3d getPosTem();
+    void commitPos();
     vector3d getPos();
+    void direita(std::vector<std::vector<int>>& coordenadas);
+    void frente(std::vector<std::vector<int>>& coordenadas);
+    void esquerda(std::vector<std::vector<int>>& coordenadas);
+    void tras(std::vector<std::vector<int>>& coordenadas);
+    void soltarBomba();
+
 
 private:
     float convertParaRadianos(float angulo);
