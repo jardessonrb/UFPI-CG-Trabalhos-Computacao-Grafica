@@ -471,6 +471,9 @@ void mouse_active_click__callback(int x, int y) {
 
 
 void estouroBomba(int x, int z, int tamanho) {
+    x = (x / 20) * 20;
+    z = (z / 20) * 20;
+
     for (int i = 0, z_linha_mais = z, z_linha_menos = z; i < 3; i++, z_linha_mais += tamanho, z_linha_menos -= tamanho)
     {
         board.soltarBomba(x, z_linha_mais, tamanho);

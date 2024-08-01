@@ -28,6 +28,25 @@ Board::Board(CGQuadrado cg) {
     // }
 
     this->cgQuadrado = cg;
+    this->coordenada_caixotes = std::vector<std::vector<int>>(16, std::vector(2, 0));
+    this->coordenada_caixotes = {
+        { 140, 40 },
+        { 20, 200 },
+        { 20, 160 },
+        { 60, 20 },
+        { 100, 20 },
+        { 140, 20 },
+        { 200, 20 },
+        { 140, 160 },
+        { 140, 180 },
+        { 140, 200 },
+        { 140, 220 },
+        { 140, 240 },
+        { 140, 260 },
+        { 240, 140 },
+        { 240, 180 },
+        { 240, 220 },
+    };
 }
 
 bool Board::isParede(int x, int z) {
@@ -45,7 +64,8 @@ void Board::desenhar_chao() {
 }
 
 void Board::desenhar_obstaculos() {
-    glColor3f(0.0, 0.0, 1.0);
+    glColor3f(0.0, 0.0, 0.5);
+
     //Lado esquerdo e direito
     for (int z = 0; z < this->comprimento; z += this->tamanho_bloco)
     {
@@ -85,6 +105,14 @@ void Board::desenhar_obstaculos() {
         }
         desenha = !desenha;
     }
+    //Desenha cubos
+    glColor3f(0.5, 0.4, 0.0);
+    for (int i = 0; i < this->coordenada_caixotes.size(); i++)
+    {
+        this->cgQuadrado.desenhaQuadrado(this->coordenada_caixotes[i][0], this->coordenada_caixotes[i][1], this->tamanho_bloco);
+        this->marcarMatriz(this->coordenada_caixotes[i][0], this->coordenada_caixotes[i][1]);
+    }
+
 }
 
 void Board::desenhar_linhas_no_chao() {
@@ -125,22 +153,6 @@ void Board::marcarMatriz(int x, int z) {
 }
 
 void Board::desenharPersonagem(int x, int z, int tamanho) {
-    // // printf("Booneco: [%d][%d] - ", x, z);
-    // for (int i = x; i < (x + tamanho); i++)
-    // {
-    //     for (int j = z; j < (z + tamanho); j++)
-    //     {
-    //         if (i >= 0 && i < this->largura && j >= 0 && j < this->comprimento) {
-    //             if (this->coordenada_chao_board[i][j] == 1) {
-    //                 // printf("[%d][%d] triscou na parede \n", i, j);
-    //                 return;
-    //             }
-    //         }
-    //     }
-
-    // }
-
-    // printf("[%d][%d] passou sem triscar", x, z);
     this->cgQuadrado.desenhaQuadrado(x, z, tamanho);
 }
 
@@ -149,8 +161,8 @@ std::vector<std::vector<int>>& Board::getCoordenadas() {
 }
 
 void Board::soltarBomba(int x, int z, int tamanho) {
-    // printf("[%d] [%d] => %d", x, z, tamanho);
-    glColor3f(1.0, 1.0, 0.0);
+
+    // glColor3f(0.67, 0.35, 0.12);
     this->cgQuadrado.desenhaQuadrado(x, z, tamanho);
 }
 

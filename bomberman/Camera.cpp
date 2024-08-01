@@ -98,9 +98,9 @@ void Camera::atualizarYaw() {
 }
 
 void Camera::ativarVisaoCima() {
-    gluLookAt(150, 200, 550, // Posição da câmera (x, y, z)
+    gluLookAt(150, 300, 550, // Posição da câmera (x, y, z)
         150, 0, 0,    // Ponto para onde a câmera está olhando (x, y, z)
-        0.0, 0.0, -2.0); //UP da camera
+        0.0, 0.0, -3.0); //UP da camera
 
     // gluLookAt(150, 350, 150, // Posição da câmera (x, y, z)
     //     150, 0, 150,    // Ponto para onde a câmera está olhando (x, y, z)

@@ -4,6 +4,7 @@
 #include <vector>
 
 class Board {
+
 private:
     int largura = 300;
     int comprimento = 300;
@@ -12,6 +13,7 @@ private:
     std::vector<std::vector<int>> coordenada_chao_board;
     CGQuadrado cgQuadrado;
     void iniciar_matriz();
+    std::vector<std::vector<int>> coordenada_caixotes;
 
 public:
     ~Board();
