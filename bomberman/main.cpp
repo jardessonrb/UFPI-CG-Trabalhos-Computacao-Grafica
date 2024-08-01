@@ -52,12 +52,6 @@ Board board((CGQuadrado(chao_coord_y)));
 CGQuadrado cgrQuadrado(chao_coord_y);
 Boneco boneco(vector3d(25, chao_coord_y, 260));
 bool camera_primeira_pessoa = false;
-bool isSoltarBomba = false, isBombaEstouro = false;
-GLuint segundosPassados = 0;
-GLuint tempoBombaAtiva = 0, qntBombas = 0;
-GLuint tempoBombaEstouro = 0;
-vector3d posicao_bomba(0, 0, 0);
-
 
 bool keyStates[KEY_COUNT];
 
@@ -107,7 +101,7 @@ void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
 void desenharJogo();
-void estouroBomba(int x, int z, int tamanho);
+void estouroBomba(int x, int z, int tamanho, int potencia);
 
 /*
  * Funcao principal
@@ -313,26 +307,34 @@ void timer(int value) {
 
 void keyboardOnpress(unsigned char key, int x, int y) {
     if (keyStates['w']) {
-        camera.frente();
+        camera.frente(board.getCoordenadas());
         boneco.frente(board.getCoordenadas());
     }
     if (keyStates['a']) {
         // printf("pra esquerda");
-        camera.esquerda();
+        // camera.esquerda();
         // boneco.esquerda();
+        camera.esquerda(board.getCoordenadas());
         boneco.esquerda(board.getCoordenadas());
     }
     if (keyStates['d']) {
         // printf("pra direita");
-        camera.direita();
+        // camera.direita();
         // boneco.direita();
+        camera.direita(board.getCoordenadas());
         boneco.direita(board.getCoordenadas());
     }
     if (keyStates['s']) {
         // printf("pra baixo");
-        camera.tras();
+        // camera.tras();
         // boneco.tras();
+        camera.tras(board.getCoordenadas());
         boneco.tras(board.getCoordenadas());
+    }
+
+    if (keyStates['p'] && camera_primeira_pessoa) {
+        std::vector<vector3d> coordenadas = camera.andar(board.getCoordenadas());
+        boneco.atualizarCoordenada(coordenadas);
     }
 
     // if (keyStates['b']) {
@@ -350,38 +352,15 @@ void keyboardOnpress(unsigned char key, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
     keyStates[key] = true;
     keyboardOnpress(key, x, y);
+    vector3d coordenada_boneco_a = boneco.getPos();
 
     switch (key) {
-        //     // Tecle - ou + para alterar o incremento do angulo de rotacao
-        // case '-': case '_': if (graus > 1) graus -= 1; break;
-        // case '+': case '=': if (graus < 360) graus += 1; break;
-
-        //     // Tecle < ou > para alterar o FPS desejado
-        // case ',': case '<': if (fps_desejado > 1) fps_desejado -= 1; break;
-        // case '.': case '>': if (fps_desejado * 2 < MAX_FPS) fps_desejado += 1; break;
-
-
-
     case 'c':
         camera_primeira_pessoa = !camera_primeira_pessoa;
         break;
     case 'b':
-        if (!isSoltarBomba && !isBombaEstouro) {
-            tempoBombaAtiva = (glutGet(GLUT_ELAPSED_TIME) + 3000);
-            isSoltarBomba = true;
-            isBombaEstouro = false;
-            qntBombas = 1;
-            posicao_bomba = boneco.getPos();
-        }
+        board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 4);
         break;
-
-        // case 'd':
-        //     camera.virarDireita();
-        //     break;
-
-        // case 'a':
-        //     camera.virarEsquerda();
-        //     break;
 
     case ESC: exit(EXIT_SUCCESS); break;
     }
@@ -469,49 +448,12 @@ void mouse_active_click__callback(int x, int y) {
     // printf("Movimento com botão pressionado em (%d, %d)\n", x, y);
 }
 
-
-void estouroBomba(int x, int z, int tamanho) {
-    x = (x / 20) * 20;
-    z = (z / 20) * 20;
-
-    for (int i = 0, z_linha_mais = z, z_linha_menos = z; i < 3; i++, z_linha_mais += tamanho, z_linha_menos -= tamanho)
-    {
-        board.soltarBomba(x, z_linha_mais, tamanho);
-        board.soltarBomba(x, z_linha_menos, tamanho);
-    }
-
-    for (int i = 0, x_linha_mais = x, x_linha_menos = x; i < 3; i++, x_linha_mais += tamanho, x_linha_menos -= tamanho)
-    {
-        board.soltarBomba(x_linha_mais, z, tamanho);
-        board.soltarBomba(x_linha_menos, z, tamanho);
-    }
-
-}
-
 void desenharJogo() {
     board.desenhar_cenario();
     glColor3f(1.0, 0.0, 0.0);
     vector3d coordenada_boneco = boneco.getPos();
-    board.desenharPersonagem(coordenada_boneco.x, coordenada_boneco.z, 10);
-
-    if (isSoltarBomba && tempoBombaAtiva > glutGet(GLUT_ELAPSED_TIME)) {
-        board.soltarBomba(posicao_bomba.x, posicao_bomba.z, 5);
-    }
-    else if (tempoBombaAtiva < glutGet(GLUT_ELAPSED_TIME)) {
-        isSoltarBomba = false;
-
-        if (!isBombaEstouro && qntBombas == 1) {
-            tempoBombaEstouro = (glutGet(GLUT_ELAPSED_TIME) + 2000);
-            isBombaEstouro = true;
-            qntBombas = 0;
-        }
-    }
-
-    if (isBombaEstouro && (tempoBombaEstouro > glutGet(GLUT_ELAPSED_TIME))) {
-        estouroBomba(posicao_bomba.x, posicao_bomba.z, 20);
-    }
-    else if (tempoBombaEstouro < glutGet(GLUT_ELAPSED_TIME)) {
-        isBombaEstouro = false;
+    if (!camera_primeira_pessoa) {
+        board.desenharPersonagem(coordenada_boneco.x, coordenada_boneco.z, 10);
     }
 }
 

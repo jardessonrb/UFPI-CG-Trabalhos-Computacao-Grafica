@@ -1,5 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+#include <vector>
 #include "vector3d.h"
 
 enum Sentido { FRENTE, DIREITA, COSTA, ESQUERDA };
@@ -19,11 +20,14 @@ private:
     float valor_yaw;
     float valor_PI = 3.14159265;
 
+    int index_direcao = 0;
+
     Sentido sentido = FRENTE;
     vector3d pos_direita = vector3d(1, 0, 0);
     vector3d pos_esquerda = vector3d(-1, 0, 0);
     vector3d pos_frente = vector3d(0, 0, -1);
     vector3d pos_costas = vector3d(0, 0, 1);
+    std::vector<vector3d> direcoes;
 
 public:
     Camera(vector3d pos);
@@ -38,9 +42,14 @@ public:
     void direita();
     void atualizarYaw(float dYaw);
     void atualizarYaw();
-    // void alterarDirecao(Sentido sentidoEscolhido);
-    void virarDireita();
-    void virarEsquerda();
+    void direita(std::vector<std::vector<int>>& coordenadas);
+    void frente(std::vector<std::vector<int>>& coordenadas);
+    void esquerda(std::vector<std::vector<int>>& coordenadas);
+    void tras(std::vector<std::vector<int>>& coordenadas);
+    int indexCalculado(Sentido sentido);
+    void ajustarCamera();
+    std::vector<vector3d> andar(std::vector<std::vector<int>>& coordenadas);
+    bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
 
 private:
     float convertParaRadianos(float angulo);

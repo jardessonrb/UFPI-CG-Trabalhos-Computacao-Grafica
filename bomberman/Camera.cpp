@@ -11,6 +11,7 @@
 #include <cstdio>
 #include "camera.h"
 #include "vector3d.h"
+#include <vector>
 
 Camera::Camera(vector3d pos) {
     m_pos = pos;
@@ -21,6 +22,12 @@ Camera::Camera(vector3d pos) {
     m_left = vector3d(-1, 0, 0);
     m_up = vector3d(0, 1, 0);
     m_velocidade = vector3d(0, 0, 0);
+
+    this->direcoes = std::vector<vector3d>();
+    this->direcoes.push_back(vector3d(0, 0, -1));
+    this->direcoes.push_back(vector3d(1, 0, 0));
+    this->direcoes.push_back(vector3d(0, 0, 1));
+    this->direcoes.push_back(vector3d(-1, 0, 0));
 }
 
 Camera::Camera(vector3d pos, vector3d ponto, vector3d up) {
@@ -32,6 +39,11 @@ Camera::Camera(vector3d pos, vector3d ponto, vector3d up) {
     m_left = vector3d(-1, 0, 0);
     m_up = vector3d(0, 1, 0);
     m_velocidade = vector3d(0, 0, 0);
+    this->direcoes = std::vector<vector3d>();
+    this->direcoes.push_back(vector3d(0, 0, -1));
+    this->direcoes.push_back(vector3d(1, 0, 0));
+    this->direcoes.push_back(vector3d(0, 0, 1));
+    this->direcoes.push_back(vector3d(-1, 0, 0));
 }
 
 Camera::~Camera() {
@@ -47,8 +59,6 @@ void Camera::frente() {
 
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 0;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::tras() {
@@ -57,8 +67,6 @@ void Camera::tras() {
 
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 300;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::esquerda() {
@@ -68,8 +76,6 @@ void Camera::esquerda() {
 
     ponto_camera.x = 0;
     ponto_camera.z = m_pos.z;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Camera::direita() {
@@ -78,8 +84,6 @@ void Camera::direita() {
 
     ponto_camera.x = 300;
     ponto_camera.z = m_pos.z;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 float Camera::convertParaRadianos(float angulo) {
@@ -108,93 +112,123 @@ void Camera::ativarVisaoCima() {
 }
 
 
-// void Camera::alterarDirecao(Sentido sentidoEscolhido) {
-//     if (sentidoEscolhido == sentido) {
-//         return;
-//     }
+void Camera::direita(std::vector<std::vector<int>>& coordenadas) {
+    this->index_direcao = this->indexCalculado(DIREITA);
 
-//     if (sentidoEscolhido == FRENTE) {
-//         sentido = FRENTE;
-//         ponto_camera.z = 0;
-//         ponto_camera.x = m_pos.x;
+    ajustarCamera();
+}
 
-//         m_dir = this->pos_frente;
-//     }
+void Camera::frente(std::vector<std::vector<int>>& coordenadas) {
+    this->index_direcao = this->indexCalculado(DIREITA);
 
-//     if (sentidoEscolhido == DIREITA) {
-//         sentido = DIREITA;
-//         ponto_camera.x = 300;
-//         ponto_camera.z = m_pos.z;
+    ajustarCamera();
+}
+void Camera::esquerda(std::vector<std::vector<int>>& coordenadas) {
+    this->index_direcao = this->indexCalculado(ESQUERDA);
 
-//         m_dir = this->pos_direita;
-//     }
+    ajustarCamera();
+}
+void Camera::tras(std::vector<std::vector<int>>& coordenadas) {
+    this->index_direcao = this->indexCalculado(COSTA);
 
-//     if (sentidoEscolhido == COSTA) {
-//         sentido = COSTA;
-//         ponto_camera.x = m_pos.x;
-//         ponto_camera.z = 300;
+    ajustarCamera();
+}
 
-//         m_dir = this->pos_costas;
-//     }
+void Camera::ajustarCamera() {
+    if (this->index_direcao == 0) {
+        ponto_camera.x = m_pos.x;
+        ponto_camera.z = 0;
+    }
 
-//     if (sentidoEscolhido == ESQUERDA) {
-//         sentido = ESQUERDA;
-//         ponto_camera.x = 0;
-//         ponto_camera.z = m_pos.z;
+    if (this->index_direcao == 1) {
+        ponto_camera.x = 300;
+        ponto_camera.z = m_pos.z;
+    }
 
-//         m_dir = this->pos_esquerda;
-//     }
-// }
+    if (this->index_direcao == 2) {
+        ponto_camera.x = m_pos.x;
+        ponto_camera.z = 300;
+    }
 
-// void Camera::virarDireita() {
-//     if (sentido == FRENTE) {
-//         sentido = DIREITA;
-//         ponto_camera.x = 300;
-//         m_dir = this->pos_direita;
-//     }
+    if (this->index_direcao == 3) {
+        ponto_camera.x = 0;
+        ponto_camera.z = m_pos.z;
+    }
+}
 
-//     if (sentido == DIREITA) {
-//         sentido = COSTA;
-//         ponto_camera.z = 300;
-//         m_dir = this->pos_costas;
-//     }
 
-//     if (sentido == COSTA) {
-//         sentido = ESQUERDA;
+std::vector<vector3d> Camera::andar(std::vector<std::vector<int>>& coordenadas) {
+    vector3d direcao = this->direcoes[this->index_direcao];
+    printf("[%f][%f][%f] index %d \n", direcao.x, direcao.y, direcao.z, this->index_direcao);
+    m_velocidade = direcao * escala_velocidade;
 
-//         ponto_camera.x = 0;
-//         m_dir = this->pos_esquerda;
-//     }
+    vector3d pos_temp = m_velocidade + m_pos;
+    if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
+        m_pos = pos_temp;
+    }
 
-//     if (sentido == ESQUERDA) {
-//         sentido = FRENTE;
-//         m_dir = this->pos_frente;
-//         ponto_camera.z = 0;
-//     }
-// }
+    std::vector<vector3d> coordenadas_atualizadas;
+    coordenadas_atualizadas.push_back(m_pos);
+    coordenadas_atualizadas.push_back(ponto_camera);
+    printf("Camera: %f, %f , %f \n", m_pos.x, m_pos.y, m_pos.z);
+    return coordenadas_atualizadas;
+}
 
-// void Camera::virarEsquerda() {
-// if (sentido == FRENTE) {
-//     sentido = ESQUERDA;
-//     m_dir = this->pos_esquerda;
-//     ponto_camera.x = 0;
-// }
+bool Camera::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z) {
+    int x_linha = x + 5;
+    int z_linha = z + 5;
 
-// if (sentido == ESQUERDA) {
-//     sentido = COSTA;
-//     m_dir = this->pos_costas;
-//     ponto_camera.z = 300;
-// }
+    if (x < 0 || x > 300 || x_linha < 0 || x_linha > 300) {
+        return true;
+    }
 
-// if (sentido == COSTA) {
-//     sentido = DIREITA;
-//     m_dir = this->pos_direita;
-//     ponto_camera.x = 300;
-// }
+    if (z < 0 || z > 300 || z_linha < 0 || z_linha > 300) {
+        return true;
+    }
 
-// if (sentido == DIREITA) {
-//     sentido = FRENTE;
-//     m_dir = this->pos_frente;
-//     ponto_camera.z = 0;
-// }
-// }
+    if (coordenadas[x][z] == 1 || coordenadas[x][z_linha] == 1 || coordenadas[x_linha][z] == 1 || coordenadas[x_linha][z_linha] == 1) {
+        // printf("\nxz[%d][%d] <=> xz_linha[%d][%d] \n", x, z, x_linha, z_linha);
+        // printf("[%d] <=> [%d] <=> [%d] <=> [%d]", coordenadas[x][z], coordenadas[x][z_linha], coordenadas[x_linha][z], coordenadas[x_linha][z_linha]);
+        return true;
+    }
+
+    return false;
+}
+
+
+int Camera::indexCalculado(Sentido sentido) {
+    int novo_index = this->index_direcao;
+    if (sentido == FRENTE) {
+        novo_index + 0;
+    }
+
+    if (sentido == DIREITA) {
+        if (novo_index + 1 > 3) {
+            novo_index = 0;
+        }
+        else {
+            novo_index += 1;
+        }
+    }
+
+    if (sentido == COSTA) {
+        if (novo_index + 2 > 3) {
+            int temp = (novo_index - 2);
+            novo_index = (temp < 0 ? temp * (-1) : temp);
+        }
+        else {
+            novo_index += 2;
+        }
+    }
+
+    if (sentido == ESQUERDA) {
+        if (novo_index - 1 < 0) {
+            novo_index = 3;
+        }
+        else {
+            novo_index -= 1;
+        }
+    }
+
+    return novo_index;
+}

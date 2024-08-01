@@ -14,6 +14,14 @@ private:
     CGQuadrado cgQuadrado;
     void iniciar_matriz();
     std::vector<std::vector<int>> coordenada_caixotes;
+    std::pair<float, float> posicao_bomba;
+    unsigned int inicio_tempo_bomba = 0;
+    unsigned int inicio_tempo_bomba_estouro = 0;
+    bool isSoltarBomba = false;
+    bool isBombaEmOutoro = false;
+    int quantidade_bombas = 0;
+    int potencia_bomba = 3;
+    int tamanho_bomba = 20;
 
 public:
     ~Board();
@@ -24,10 +32,15 @@ public:
     void desenhar_obstaculos();
     void desenhar_linhas_no_chao();
     void desenhar_cenario();
-    void marcarMatriz(int x, int z);
+    void marcar_matriz(int x, int z, int peso);
     void desenharPersonagem(int x, int z, int tamanho);
     std::vector<std::vector<int>>& getCoordenadas();
-    void soltarBomba(int x, int z, int tamanho);
+    void desenhar_bomba(int x, int z, int tamanho);
+    void ativar_bomba();
+    void estourar_bomba(int x, int z, int tamanho, int potencia);
+    void soltar_bomba(int x, int z, int tamanho, int potencia);
+    void detectar_explosao(int x, int z, int tamanho);
+    void apagar_caixote(int x, int z);
 };
 
 

@@ -13,8 +13,8 @@ private:
     vector3d m_up;
     vector3d m_velocidade;
 
-    vector3d ponto_Boneco;
-    vector3d up_Boneco;
+    vector3d ponto_camera;
+    vector3d up_camera;
     float escala_velocidade = 5.0f;
 
     float valor_yaw;
@@ -47,6 +47,7 @@ public:
     void esquerda(std::vector<std::vector<int>>& coordenadas);
     void tras(std::vector<std::vector<int>>& coordenadas);
     void soltarBomba();
+    void atualizarCoordenada(std::vector<vector3d>& coordenadas);
 
 
 private:
