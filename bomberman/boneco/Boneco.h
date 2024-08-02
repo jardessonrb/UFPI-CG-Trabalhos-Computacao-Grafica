@@ -15,7 +15,7 @@ private:
 
     vector3d ponto_camera;
     vector3d up_camera;
-    float escala_velocidade = 5.0f;
+    float escala_velocidade = 10.0f;
 
     float valor_yaw;
     float valor_PI = 3.14159265;
@@ -29,6 +29,7 @@ private:
     bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
 
 public:
+    Boneco();
     Boneco(vector3d pos);
     Boneco(vector3d pos, vector3d ponto, vector3d up);
     static Boneco initOrigem();

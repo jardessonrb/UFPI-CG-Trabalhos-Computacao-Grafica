@@ -114,6 +114,8 @@ int main(int argc, char** argv) {
     board.add_balao(balao_1);
     board.add_balao(balao_2);
     board.add_balao(balao_3);
+    board.add_boneco(boneco);
+    board.add_camera(camera);
 
     /* inicia o GLUT e alguns parametros do OpenGL */
     init_glut("Bomberman 3D", argc, argv);
@@ -263,12 +265,14 @@ void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    if (camera_primeira_pessoa) {
-        camera.ativar();
-    }
-    else {
-        camera.ativarVisaoCima();
-    }
+    board.ativar_camera();
+
+    // if (camera_primeira_pessoa) {
+    //     camera.ativar();
+    // }
+    // else {
+    //     camera.ativarVisaoCima();
+    // }
 
     glColor3f(R, G, B); //Define a cor do objeto
 
@@ -314,36 +318,37 @@ void timer(int value) {
 }
 
 void keyboardOnpress(unsigned char key, int x, int y) {
-    if (keyStates['w']) {
-        camera.frente(board.getCoordenadas());
-        boneco.frente(board.getCoordenadas());
-    }
-    if (keyStates['a']) {
-        // printf("pra esquerda");
-        // camera.esquerda();
-        // boneco.esquerda();
-        camera.esquerda(board.getCoordenadas());
-        boneco.esquerda(board.getCoordenadas());
-    }
-    if (keyStates['d']) {
-        // printf("pra direita");
-        // camera.direita();
-        // boneco.direita();
-        camera.direita(board.getCoordenadas());
-        boneco.direita(board.getCoordenadas());
-    }
-    if (keyStates['s']) {
-        // printf("pra baixo");
-        // camera.tras();
-        // boneco.tras();
-        camera.tras(board.getCoordenadas());
-        boneco.tras(board.getCoordenadas());
-    }
+    board.evento_keyboard(key);
+    // if (keyStates['w']) {
+    //     camera.frente(board.getCoordenadas());
+    //     boneco.frente(board.getCoordenadas());
+    // }
+    // if (keyStates['a']) {
+    //     // printf("pra esquerda");
+    //     // camera.esquerda();
+    //     // boneco.esquerda();
+    //     camera.esquerda(board.getCoordenadas());
+    //     boneco.esquerda(board.getCoordenadas());
+    // }
+    // if (keyStates['d']) {
+    //     // printf("pra direita");
+    //     // camera.direita();
+    //     // boneco.direita();
+    //     camera.direita(board.getCoordenadas());
+    //     boneco.direita(board.getCoordenadas());
+    // }
+    // if (keyStates['s']) {
+    //     // printf("pra baixo");
+    //     // camera.tras();
+    //     // boneco.tras();
+    //     camera.tras(board.getCoordenadas());
+    //     boneco.tras(board.getCoordenadas());
+    // }
 
-    if (keyStates['p'] && camera_primeira_pessoa) {
-        std::vector<vector3d> coordenadas = camera.andar(board.getCoordenadas());
-        boneco.atualizarCoordenada(coordenadas);
-    }
+    // if (keyStates['p'] && camera_primeira_pessoa) {
+    //     std::vector<vector3d> coordenadas = camera.andar(board.getCoordenadas());
+    //     boneco.atualizarCoordenada(coordenadas);
+    // }
 
     // if (keyStates['b']) {
     //     tempoBombaAtiva = glutGet(GLUT_ELAPSED_TIME);
@@ -360,18 +365,18 @@ void keyboardOnpress(unsigned char key, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
     keyStates[key] = true;
     keyboardOnpress(key, x, y);
-    vector3d coordenada_boneco_a = boneco.getPos();
+    // vector3d coordenada_boneco_a = boneco.getPos();
 
-    switch (key) {
-    case 'c':
-        camera_primeira_pessoa = !camera_primeira_pessoa;
-        break;
-    case 'b':
-        board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 2);
-        break;
+    // switch (key) {
+    // case 'c':
+    //     camera_primeira_pessoa = !camera_primeira_pessoa;
+    //     break;
+    // case 'b':
+    //     board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 2);
+    //     break;
 
-    case ESC: exit(EXIT_SUCCESS); break;
-    }
+    // case ESC: exit(EXIT_SUCCESS); break;
+    // }
 }
 
 
@@ -458,10 +463,10 @@ void mouse_active_click__callback(int x, int y) {
 
 void desenharJogo() {
     board.desenhar_cenario();
-    glColor3f(1.0, 0.0, 0.0);
-    vector3d coordenada_boneco = boneco.getPos();
-    if (!camera_primeira_pessoa) {
-        board.desenhar_personagem(coordenada_boneco.x, coordenada_boneco.z, 10);
-    }
+    // glColor3f(1.0, 0.0, 0.0);
+    // vector3d coordenada_boneco = boneco.getPos();
+    // if (!camera_primeira_pessoa) {
+    //     board.desenhar_personagem(coordenada_boneco.x, coordenada_boneco.z, 10);
+    // }
 }
 

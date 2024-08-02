@@ -235,6 +235,11 @@ void Board::desenhar_cenario() {
     desenhar_obstaculos();
     ativar_bomba();
     desenhar_baloes();
+    if (!this->isCameraPrimeiraPessoa) {
+        glColor3f(1.0, 0.0, 0.0);
+        vector3d coordenada_boneco_a = this->boneco.getPos();
+        desenhar_personagem(coordenada_boneco_a.x, coordenada_boneco_a.z, 10);
+    }
 }
 
 void Board::ativar_bomba() {
@@ -305,4 +310,73 @@ void Board::desenhar_baloes() {
 
 void Board::add_balao(Balao b) {
     this->baloes.push_back(b);
+}
+
+void Board::add_boneco(Boneco bnc) {
+    this->boneco = bnc;
+}
+
+void Board::add_camera(Camera camera) {
+    this->camera = camera;
+}
+
+void Board::alternar_camera() {
+    this->isCameraPrimeiraPessoa = !this->isCameraPrimeiraPessoa;
+}
+
+
+void Board::evento_keyboard(char keyboard) {
+    if (keyboard == 'w') {
+        // printf("%c boneco pra frente");
+        this->camera.frente(getCoordenadas());
+        this->boneco.frente(getCoordenadas());
+    }
+    if (keyboard == 'a') {
+        printf("%c boneco pra esquerda");
+        // printf("pra esquerda");
+        // camera.esquerda();
+        // boneco.esquerda();
+        this->camera.esquerda(getCoordenadas());
+        this->boneco.esquerda(getCoordenadas());
+    }
+    if (keyboard == 'd') {
+        printf("%c boneco pra direita");
+        // printf("pra direita");
+        // camera.direita();
+        // boneco.direita();
+        this->camera.direita(getCoordenadas());
+        this->boneco.direita(getCoordenadas());
+    }
+    if (keyboard == 's') {
+        printf("%c boneco pra trás");
+        // printf("pra baixo");
+        // camera.tras();
+        // boneco.tras();
+        this->camera.tras(getCoordenadas());
+        this->boneco.tras(getCoordenadas());
+    }
+
+    if (keyboard == 'b') {
+        vector3d coordenada_boneco_a = this->boneco.getPos();
+        soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 2);
+    }
+
+    if (keyboard == 'c') {
+        alternar_camera();
+    }
+
+    // if (keyboard == 'p' && camera_primeira_pessoa) {
+    if (keyboard == 'p' && this->isCameraPrimeiraPessoa) {
+        std::vector<vector3d> coordenadas = this->camera.andar(getCoordenadas());
+        this->boneco.atualizarCoordenada(coordenadas);
+    }
+}
+
+void Board::ativar_camera() {
+    if (this->isCameraPrimeiraPessoa) {
+        this->camera.ativar();
+    }
+    else {
+        this->camera.ativarVisaoCima();
+    }
 }

@@ -30,6 +30,7 @@ private:
     std::vector<vector3d> direcoes;
 
 public:
+    Camera();
     Camera(vector3d pos);
     Camera(vector3d pos, vector3d ponto, vector3d up);
     static Camera initOrigem();

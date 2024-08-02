@@ -13,6 +13,8 @@
 #include "vector3d.h"
 #include <vector>
 
+Camera::Camera() {}
+
 Camera::Camera(vector3d pos) {
     m_pos = pos;
     ponto_camera = vector3d(0, 0, 0);

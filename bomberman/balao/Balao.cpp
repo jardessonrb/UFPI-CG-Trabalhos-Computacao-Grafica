@@ -149,25 +149,25 @@ vector3d Balao::calcular_direcao(std::vector<std::vector<int>>& coordenadas) {
     std::uniform_int_distribution<int> distrib(0, 3); // Define a distribuição uniforme
 
     int numeroAleatorio = distrib(gerador);
-    if (this->tempo_ultimo_movimento < glutGet(GLUT_ELAPSED_TIME)) {
-        this->tempo_ultimo_movimento = (glutGet(GLUT_ELAPSED_TIME) + 500);
-        if (numeroAleatorio == 0) {
-            this->frente(coordenadas);
-        }
-
-        if (numeroAleatorio == 1) {
-            this->direita(coordenadas);
-        }
-
-        if (numeroAleatorio == 2) {
-            this->tras(coordenadas);
-        }
-
-        if (numeroAleatorio == 3) {
-            this->esquerda(coordenadas);
-        }
+    // if (this->tempo_ultimo_movimento < glutGet(GLUT_ELAPSED_TIME)) {
+    //     this->tempo_ultimo_movimento = (glutGet(GLUT_ELAPSED_TIME) + 500);
+    if (numeroAleatorio == 0) {
+        this->frente(coordenadas);
     }
 
+    if (numeroAleatorio == 1) {
+        this->direita(coordenadas);
+    }
 
-    return this->m_pos;
+    if (numeroAleatorio == 2) {
+        this->tras(coordenadas);
+    }
+
+    if (numeroAleatorio == 3) {
+        this->esquerda(coordenadas);
+    }
+}
+
+
+return this->m_pos;
 }

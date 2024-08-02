@@ -3,6 +3,8 @@
 #include "cg/CGQuadrado.h"
 #include <vector>
 #include "balao/Balao.h"
+#include "boneco/Boneco.h"
+#include "Camera.h"
 
 class Board {
 
@@ -24,6 +26,9 @@ private:
     int potencia_bomba = 3;
     int tamanho_bomba = 20;
     std::vector<Balao> baloes;
+    Boneco boneco;
+    Camera camera;
+    bool isCameraPrimeiraPessoa = false;
 
 public:
     ~Board();
@@ -46,6 +51,13 @@ public:
     void detectar_explosao(int x, int z, int tamanho);
     void apagar_caixote(int x, int z);
     void add_balao(Balao balao);
+    void add_boneco(Boneco balao);
+    void add_camera(Camera camera);
+    void alternar_camera();
+    void ativar_camera();
+
+
+    void evento_keyboard(char keyboard);
 };
 
 

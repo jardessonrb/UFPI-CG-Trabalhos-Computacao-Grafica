@@ -38,6 +38,9 @@ Boneco::Boneco(vector3d pos, vector3d ponto, vector3d up) {
 Boneco::~Boneco() {
 }
 
+Boneco::Boneco() {
+}
+
 void Boneco::ativar() {
     gluLookAt(m_pos.x, m_pos.y, m_pos.z, ponto_camera.x, ponto_camera.y, ponto_camera.z, up_camera.x, up_camera.y, up_camera.z);
 }
