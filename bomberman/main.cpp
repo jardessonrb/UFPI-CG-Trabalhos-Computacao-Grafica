@@ -23,7 +23,8 @@
 #include "cg/CGQuadrado.cpp"
 #include "textureRGB.h"
 #include "boneco/Boneco.cpp"
-
+#include "balao/Balao.cpp"
+#include <vector>
 /*
  * Declaracao de constantes e variaveis
  */
@@ -101,15 +102,22 @@ void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
 void desenharJogo();
-void estouroBomba(int x, int z, int tamanho, int potencia);
 
 /*
  * Funcao principal
  */
 int main(int argc, char** argv) {
+    Balao balao_1((vector3d(260, chao_coord_y, 40)));
+    Balao balao_2((vector3d(25, chao_coord_y, 30)));
+    Balao balao_3((vector3d(260, chao_coord_y, 260)));
+
+    board.add_balao(balao_1);
+    board.add_balao(balao_2);
+    board.add_balao(balao_3);
 
     /* inicia o GLUT e alguns parametros do OpenGL */
     init_glut("Bomberman 3D", argc, argv);
+
 
     /* funcao de controle do GLUT */
     glutMainLoop();
@@ -359,7 +367,7 @@ void keyboard(unsigned char key, int x, int y) {
         camera_primeira_pessoa = !camera_primeira_pessoa;
         break;
     case 'b':
-        board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 4);
+        board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 2);
         break;
 
     case ESC: exit(EXIT_SUCCESS); break;
@@ -420,7 +428,7 @@ void mouse_click_callback(int button, int state, int x, int y) {
         if (button == GLUT_LEFT_BUTTON) {
             btn_mouse_esquerdo_pressionado = true;
             ultima_posicao_mouse = x;
-            printf("Botão esquerdo pressionado em (%d, %d)\n", x, y);
+            // printf("Botão esquerdo pressionado em (%d, %d)\n", x, y);
         }
     }
     else if (state == GLUT_UP) {
@@ -453,7 +461,7 @@ void desenharJogo() {
     glColor3f(1.0, 0.0, 0.0);
     vector3d coordenada_boneco = boneco.getPos();
     if (!camera_primeira_pessoa) {
-        board.desenharPersonagem(coordenada_boneco.x, coordenada_boneco.z, 10);
+        board.desenhar_personagem(coordenada_boneco.x, coordenada_boneco.z, 10);
     }
 }
 

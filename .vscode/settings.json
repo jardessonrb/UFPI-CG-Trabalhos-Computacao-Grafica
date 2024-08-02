@@ -13,7 +13,10 @@
     },
     "files.associations": {
         "utility": "cpp",
-        "cstdio": "cpp"
+        "cstdio": "cpp",
+        "vector": "cpp",
+        "cstdlib": "cpp",
+        "iostream": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
     // ,

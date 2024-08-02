@@ -10,10 +10,13 @@
 #endif
 #include "../vector3d.h"
 #include <cstdio>
-#include "Boneco.h"
-#include "../cg/CGQuadrado.h"
+#include "Balao.h"
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <random>
 
-Boneco::Boneco(vector3d pos) {
+Balao::Balao(vector3d pos) {
     m_pos = pos;
     ponto_camera = vector3d(0, 1, 0);
     up_camera = vector3d(0, 0, 0);
@@ -24,7 +27,7 @@ Boneco::Boneco(vector3d pos) {
     m_velocidade = vector3d(0, 0, 0);
 }
 
-Boneco::Boneco(vector3d pos, vector3d ponto, vector3d up) {
+Balao::Balao(vector3d pos, vector3d ponto, vector3d up) {
     m_pos = pos;
     ponto_camera = ponto;
     up_camera = up;
@@ -35,78 +38,48 @@ Boneco::Boneco(vector3d pos, vector3d ponto, vector3d up) {
     m_velocidade = vector3d(0, 0, 0);
 }
 
-Boneco::~Boneco() {
+Balao::~Balao() {
 }
 
-void Boneco::ativar() {
-    gluLookAt(m_pos.x, m_pos.y, m_pos.z, ponto_camera.x, ponto_camera.y, ponto_camera.z, up_camera.x, up_camera.y, up_camera.z);
-}
-
-void Boneco::frente() {
+void Balao::frente() {
     m_velocidade = m_dir * escala_velocidade;
     m_pos = m_velocidade + m_pos;
 
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 0;
 
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
-void Boneco::tras() {
+void Balao::tras() {
     m_velocidade = m_dir * (-escala_velocidade);
     m_pos = m_velocidade + m_pos;
 
     ponto_camera.x = m_pos.x;
     ponto_camera.z = 300;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
-void Boneco::esquerda() {
+void Balao::esquerda() {
     m_velocidade = m_left * escala_velocidade;
     m_pos = m_pos + m_velocidade;
 
 
     ponto_camera.x = 0;
     ponto_camera.z = m_pos.z;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
-void Boneco::direita() {
+void Balao::direita() {
     m_velocidade = m_left * (-escala_velocidade);
     m_pos = m_pos + m_velocidade;
 
     ponto_camera.x = 300;
     ponto_camera.z = m_pos.z;
-
-    // printf("%f %f %f \n", m_pos.x, m_pos.y, m_pos.z);
 }
 
-float Boneco::convertParaRadianos(float angulo) {
-
-    return (angulo * valor_PI) / 180.0f;
-}
-
-
-void Boneco::ativarVisaoCima() {
-    gluLookAt(150, 370, 150, // Posição da câmera (x, y, z)
-        150, -0.5, 150,    // Ponto para onde a câmera está olhando (x, y, z)
-        0.0, 0.0, 1.0); //UP da Boneco
-}
-
-vector3d Boneco::getPos() {
+vector3d Balao::getPos() {
     return this->m_pos;
 }
 
-
-vector3d Boneco::getPosTem() {
-    return this->m_pos_temp;
-}
-
-void Boneco::commitPos() {}
-
-void Boneco::frente(std::vector<std::vector<int>>& coordenadas) {
+void Balao::frente(std::vector<std::vector<int>>& coordenadas) {
     m_velocidade = m_dir * escala_velocidade;
     vector3d pos_temp = m_velocidade + m_pos;
 
@@ -118,7 +91,7 @@ void Boneco::frente(std::vector<std::vector<int>>& coordenadas) {
 
 }
 
-void Boneco::direita(std::vector<std::vector<int>>& coordenadas) {
+void Balao::direita(std::vector<std::vector<int>>& coordenadas) {
     m_velocidade = m_left * (-escala_velocidade);
     vector3d pos_temp = m_pos + m_velocidade;
 
@@ -129,7 +102,7 @@ void Boneco::direita(std::vector<std::vector<int>>& coordenadas) {
     }
 }
 
-void Boneco::esquerda(std::vector<std::vector<int>>& coordenadas) {
+void Balao::esquerda(std::vector<std::vector<int>>& coordenadas) {
     m_velocidade = m_left * escala_velocidade;
     vector3d pos_temp = m_pos + m_velocidade;
 
@@ -141,7 +114,7 @@ void Boneco::esquerda(std::vector<std::vector<int>>& coordenadas) {
 
 }
 
-void Boneco::tras(std::vector<std::vector<int>>& coordenadas) {
+void Balao::tras(std::vector<std::vector<int>>& coordenadas) {
     m_velocidade = m_dir * (-escala_velocidade);
     vector3d pos_temp = m_velocidade + m_pos;
     if (!contatoCenario(coordenadas, pos_temp.x, pos_temp.z)) {
@@ -151,7 +124,7 @@ void Boneco::tras(std::vector<std::vector<int>>& coordenadas) {
     }
 }
 
-bool Boneco::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z) {
+bool Balao::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z) {
     int x_linha = x + 5;
     int z_linha = z + 5;
 
@@ -170,16 +143,31 @@ bool Boneco::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, i
     return false;
 }
 
-void Boneco::soltarBomba() {
-    CGQuadrado cgquadrado(-0.5);
-    glColor3f(1.0, 1.0, 0.0);
-    cgquadrado.desenhaQuadrado(this->m_pos.x, this->m_pos.z, 3);
-    // printf("soltando bomba em [%d][%d]", this->m_pos.x, this->m_pos.z);
-}
+vector3d Balao::calcular_direcao(std::vector<std::vector<int>>& coordenadas) {
+    static std::random_device rd;           // Obtém uma semente baseada em hardware
+    static std::mt19937 gerador(rd());      // Inicializa o gerador com a semente
+    std::uniform_int_distribution<int> distrib(0, 3); // Define a distribuição uniforme
 
-void Boneco::atualizarCoordenada(std::vector<vector3d>& coordenadas) {
-    m_pos = coordenadas[0];
+    int numeroAleatorio = distrib(gerador);
+    if (this->tempo_ultimo_movimento < glutGet(GLUT_ELAPSED_TIME)) {
+        this->tempo_ultimo_movimento = (glutGet(GLUT_ELAPSED_TIME) + 500);
+        if (numeroAleatorio == 0) {
+            this->frente(coordenadas);
+        }
 
-    // printf("Boneco: %f, %f , %f \n", m_pos.x, m_pos.y, m_pos.z);
-    ponto_camera = coordenadas[1];
+        if (numeroAleatorio == 1) {
+            this->direita(coordenadas);
+        }
+
+        if (numeroAleatorio == 2) {
+            this->tras(coordenadas);
+        }
+
+        if (numeroAleatorio == 3) {
+            this->esquerda(coordenadas);
+        }
+    }
+
+
+    return this->m_pos;
 }

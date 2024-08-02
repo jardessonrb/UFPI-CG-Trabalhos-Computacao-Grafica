@@ -19,14 +19,33 @@ Board::Board() {
 
 Board::Board(CGQuadrado cg) {
     this->coordenada_chao_board = std::vector<std::vector<int>>(300, std::vector(300, 0));
-    // for (int i = 0; i < this->largura; i++)
-    // {
-    //     for (int j = 0; j < this->comprimento; j++)
-    //     {
-    //         this->coordenada_chao_board[i][j] = 0;
-    //     }
-    // }
+    this->baloes = std::vector<Balao>();
 
+    this->cgQuadrado = cg;
+    this->coordenada_caixotes = std::vector<std::vector<int>>(16, std::vector(3, 0));
+    this->coordenada_caixotes = {
+        { 140, 40, 1},
+        { 20, 200, 1},
+        { 20, 160, 1},
+        { 60, 20, 1},
+        { 100, 20, 1},
+        { 140, 20, 1},
+        { 200, 20, 1},
+        { 140, 160, 1},
+        { 140, 180, 1},
+        { 140, 200, 1},
+        { 140, 220, 1},
+        { 140, 240, 1},
+        { 140, 260, 1},
+        { 240, 140, 1},
+        { 240, 180, 1},
+        { 240, 220, 1},
+    };
+}
+
+Board::Board(CGQuadrado cg, std::vector<Balao> baloes) {
+    this->coordenada_chao_board = std::vector<std::vector<int>>(300, std::vector(300, 0));
+    this->baloes = baloes;
     this->cgQuadrado = cg;
     this->coordenada_caixotes = std::vector<std::vector<int>>(16, std::vector(3, 0));
     this->coordenada_caixotes = {
@@ -196,7 +215,7 @@ void Board::marcar_matriz(int x, int z, int peso) {
     }
 }
 
-void Board::desenharPersonagem(int x, int z, int tamanho) {
+void Board::desenhar_personagem(int x, int z, int tamanho) {
     this->cgQuadrado.desenhaQuadrado(x, z, tamanho);
 }
 
@@ -215,6 +234,7 @@ void Board::desenhar_cenario() {
     iniciar_matriz();
     desenhar_obstaculos();
     ativar_bomba();
+    desenhar_baloes();
 }
 
 void Board::ativar_bomba() {
@@ -271,4 +291,18 @@ void Board::estourar_bomba(int x, int z, int tamanho, int potencia) {
         this->detectar_explosao(x_linha_mais, z, tamanho);
         this->detectar_explosao(x_linha_menos, z, tamanho);
     }
+}
+
+void Board::desenhar_baloes() {
+    glColor3f(0.0f, 0.8f, 0.0f);
+    for (int i = 0; i < this->baloes.size(); i++)
+    {
+        vector3d posicao_balao = this->baloes[i].calcular_direcao(getCoordenadas());
+        this->desenhar_personagem(posicao_balao.x, posicao_balao.z, 10);
+    }
+
+}
+
+void Board::add_balao(Balao b) {
+    this->baloes.push_back(b);
 }
