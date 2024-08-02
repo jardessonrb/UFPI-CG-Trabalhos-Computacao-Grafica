@@ -22,7 +22,7 @@ private:
     vector3d pos_esquerda = vector3d(-1, 0, 0);
     vector3d pos_frente = vector3d(0, 0, -1);
     vector3d pos_costas = vector3d(0, 0, 1);
-
+    bool is_balao_vivo = true;
     bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
 
 public:
@@ -38,6 +38,8 @@ public:
     void frente(std::vector<std::vector<int>>& coordenadas);
     void esquerda(std::vector<std::vector<int>>& coordenadas);
     void tras(std::vector<std::vector<int>>& coordenadas);
+    void morrer();
+    bool is_vivo();
     vector3d calcular_direcao(std::vector<std::vector<int>>& coordenadas);
 };
 

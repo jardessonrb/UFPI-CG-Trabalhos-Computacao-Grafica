@@ -158,11 +158,11 @@ bool Boneco::contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, i
     int x_linha = x + 5;
     int z_linha = z + 5;
 
-    if (x < 0 || x > 300 || x_linha < 0 || x_linha > 300) {
+    if (x < 0 || x >= 300 || x_linha < 0 || x_linha >= 300) {
         return true;
     }
 
-    if (z < 0 || z > 300 || z_linha < 0 || z_linha > 300) {
+    if (z < 0 || z >= 300 || z_linha < 0 || z_linha >= 300) {
         return true;
     }
 
@@ -185,4 +185,12 @@ void Boneco::atualizarCoordenada(std::vector<vector3d>& coordenadas) {
 
     // printf("Boneco: %f, %f , %f \n", m_pos.x, m_pos.y, m_pos.z);
     ponto_camera = coordenadas[1];
+}
+
+bool Boneco::is_vivo() {
+    return this->is_boneco_vivo;
+}
+
+void Boneco::morrer() {
+    this->is_boneco_vivo = false;
 }

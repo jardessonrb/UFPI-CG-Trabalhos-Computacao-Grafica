@@ -150,12 +150,14 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
     int x_linha = x + tamanho;
     int z_linha = z + tamanho;
 
-    if (x < 0 || x > 300 || x_linha < 0 || x_linha > 300 || z < 0 || z > 300 || z_linha < 0 || z_linha > 300) {
+
+    if (x < 0 || x >= 300 || x_linha < 0 || x_linha >= 300 || z < 0 || z >= 300 || z_linha < 0 || z_linha >= 300) {
         return;
     }
 
     for (int i = 0; i < this->coordenada_caixotes.size(); i++)
     {
+        // printf("%d - %d - %d - %d ", x, z, x_linha, z_linha);
         if (this->coordenada_chao_board[x][z] == 2) {
             // printf("%d - %d detectado", x, z);
             this->apagar_caixote(x, z);
@@ -176,6 +178,42 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
             this->apagar_caixote(x_linha, z_linha);
         }
     }
+
+    //Explosão dos balões
+    for (int i = 0; i < this->baloes.size(); i++)
+    {
+        vector3d posicao_balao = this->baloes[i].getPos();
+        int x_balao = posicao_balao.x;
+        int z_balao = posicao_balao.z;
+
+        int x_linha = x_balao - x;
+        int z_linha = z_balao - z;
+
+        x_linha = x_linha < 0 ? (-1 * x_linha) : x_linha;
+        z_linha = z_linha < 0 ? (-1 * z_linha) : z_linha;
+
+        if (x_linha <= 10 && z_linha <= 10) {
+            this->baloes[i].morrer();
+            // printf("Balao %d morreu [%d][%d]", i, x_balao, z_balao);
+        }
+    }
+
+    //Explosão do Boneco
+    vector3d posicao_boneco = this->boneco.getPos();
+    int x_boneco = posicao_boneco.x;
+    int z_boneco = posicao_boneco.z;
+
+    int x_linha_boneco = x_boneco - x;
+    int z_linha_boneco = z_boneco - z;
+
+    x_linha_boneco = x_linha_boneco < 0 ? (-1 * x_linha_boneco) : x_linha_boneco;
+    z_linha_boneco = z_linha_boneco < 0 ? (-1 * z_linha_boneco) : z_linha_boneco;
+
+    if (x_linha_boneco <= 10 && z_linha_boneco <= 10) {
+        this->boneco.morrer();
+        printf("boneco morreu [%d][%d]", x_boneco, z_boneco);
+    }
+
 }
 
 void Board::desenhar_linhas_no_chao() {
@@ -302,8 +340,10 @@ void Board::desenhar_baloes() {
     glColor3f(0.0f, 0.8f, 0.0f);
     for (int i = 0; i < this->baloes.size(); i++)
     {
-        vector3d posicao_balao = this->baloes[i].calcular_direcao(getCoordenadas());
-        this->desenhar_personagem(posicao_balao.x, posicao_balao.z, 10);
+        if (this->baloes[i].is_vivo()) {
+            vector3d posicao_balao = this->baloes[i].calcular_direcao(getCoordenadas());
+            this->desenhar_personagem(posicao_balao.x, posicao_balao.z, 10);
+        }
     }
 
 }
@@ -324,7 +364,6 @@ void Board::alternar_camera() {
     this->isCameraPrimeiraPessoa = !this->isCameraPrimeiraPessoa;
 }
 
-
 void Board::evento_keyboard(char keyboard) {
     if (keyboard == 'w') {
         // printf("%c boneco pra frente");
@@ -332,7 +371,7 @@ void Board::evento_keyboard(char keyboard) {
         this->boneco.frente(getCoordenadas());
     }
     if (keyboard == 'a') {
-        printf("%c boneco pra esquerda");
+        // printf("%c boneco pra esquerda");
         // printf("pra esquerda");
         // camera.esquerda();
         // boneco.esquerda();
@@ -340,7 +379,7 @@ void Board::evento_keyboard(char keyboard) {
         this->boneco.esquerda(getCoordenadas());
     }
     if (keyboard == 'd') {
-        printf("%c boneco pra direita");
+        // printf("%c boneco pra direita");
         // printf("pra direita");
         // camera.direita();
         // boneco.direita();
@@ -348,7 +387,7 @@ void Board::evento_keyboard(char keyboard) {
         this->boneco.direita(getCoordenadas());
     }
     if (keyboard == 's') {
-        printf("%c boneco pra trás");
+        // printf("%c boneco pra trás");
         // printf("pra baixo");
         // camera.tras();
         // boneco.tras();
