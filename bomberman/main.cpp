@@ -25,6 +25,9 @@
 #include "boneco/Boneco.cpp"
 #include "balao/Balao.cpp"
 #include <vector>
+#include "tocar/tocar.h"
+#include <thread>
+#include "MusicManager.cpp"
 /*
  * Declaracao de constantes e variaveis
  */
@@ -52,7 +55,9 @@ Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
 Board board((CGQuadrado(chao_coord_y)));
 CGQuadrado cgrQuadrado(chao_coord_y);
 Boneco boneco(vector3d(25, chao_coord_y, 260));
+MusicManager music_manager;
 bool camera_primeira_pessoa = false;
+int som_ativo = 1;
 
 bool keyStates[KEY_COUNT];
 
@@ -102,6 +107,7 @@ void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
 void desenharJogo();
+void play_som();
 
 /*
  * Funcao principal
@@ -120,9 +126,19 @@ int main(int argc, char** argv) {
     /* inicia o GLUT e alguns parametros do OpenGL */
     init_glut("Bomberman 3D", argc, argv);
 
-
     /* funcao de controle do GLUT */
+    // glutMainLoop();
+
+    // std::thread soundThread(play_som);
+
+    // /* funcao de controle do GLUT */
+
+    music_manager.start(0);
+
     glutMainLoop();
+
+    // // Espera a thread do som terminar antes de sair
+    // soundThread.join();
 
     return EXIT_SUCCESS;
 }
@@ -319,42 +335,6 @@ void timer(int value) {
 
 void keyboardOnpress(unsigned char key, int x, int y) {
     board.evento_keyboard(key);
-    // if (keyStates['w']) {
-    //     camera.frente(board.getCoordenadas());
-    //     boneco.frente(board.getCoordenadas());
-    // }
-    // if (keyStates['a']) {
-    //     // printf("pra esquerda");
-    //     // camera.esquerda();
-    //     // boneco.esquerda();
-    //     camera.esquerda(board.getCoordenadas());
-    //     boneco.esquerda(board.getCoordenadas());
-    // }
-    // if (keyStates['d']) {
-    //     // printf("pra direita");
-    //     // camera.direita();
-    //     // boneco.direita();
-    //     camera.direita(board.getCoordenadas());
-    //     boneco.direita(board.getCoordenadas());
-    // }
-    // if (keyStates['s']) {
-    //     // printf("pra baixo");
-    //     // camera.tras();
-    //     // boneco.tras();
-    //     camera.tras(board.getCoordenadas());
-    //     boneco.tras(board.getCoordenadas());
-    // }
-
-    // if (keyStates['p'] && camera_primeira_pessoa) {
-    //     std::vector<vector3d> coordenadas = camera.andar(board.getCoordenadas());
-    //     boneco.atualizarCoordenada(coordenadas);
-    // }
-
-    // if (keyStates['b']) {
-    //     tempoBombaAtiva = glutGet(GLUT_ELAPSED_TIME);
-    //     isSoltarBomba = true;
-    // }
-
 
     glutPostRedisplay();
 }
@@ -365,18 +345,6 @@ void keyboardOnpress(unsigned char key, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
     keyStates[key] = true;
     keyboardOnpress(key, x, y);
-    // vector3d coordenada_boneco_a = boneco.getPos();
-
-    // switch (key) {
-    // case 'c':
-    //     camera_primeira_pessoa = !camera_primeira_pessoa;
-    //     break;
-    // case 'b':
-    //     board.soltar_bomba(coordenada_boneco_a.x, coordenada_boneco_a.z, 5, 2);
-    //     break;
-
-    // case ESC: exit(EXIT_SUCCESS); break;
-    // }
 }
 
 
@@ -448,10 +416,6 @@ void mouse_click_callback(int button, int state, int x, int y) {
 
         dx = x - ultima_posicao_mouse;
         ultima_posicao_mouse = x;
-
-        // camera.atualizarYaw(dx);
-        // camera.atualizarYaw();
-        // printf("Botão liberado em (%d, %d)\n", x, y);
     }
 }
 void mouse_passive_callback(int x, int y) {
@@ -463,10 +427,5 @@ void mouse_active_click__callback(int x, int y) {
 
 void desenharJogo() {
     board.desenhar_cenario();
-    // glColor3f(1.0, 0.0, 0.0);
-    // vector3d coordenada_boneco = boneco.getPos();
-    // if (!camera_primeira_pessoa) {
-    //     board.desenhar_personagem(coordenada_boneco.x, coordenada_boneco.z, 10);
-    // }
 }
 

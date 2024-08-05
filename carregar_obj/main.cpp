@@ -80,7 +80,7 @@ void desenhar() {
 
     loader.loadOBJ("C:\\ufpi\\9 periodo\\COMPUTACAO_GRAFICA\\atividades\\opengl_glut\\carregar_obj\\bomb.obj");
 
-    glScalef(0.2f, 0.2f, 0.2f);
+    glScalef(1.5f, 1.5f, 1.5f);
     for (const auto& face : loader.faces) {
         glBegin(GL_POLYGON);
         for (const int vertexIndex : face) {

@@ -1,7 +1,6 @@
 #ifndef LOADER_H
 #define LOADER_H
 
-
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -18,7 +17,6 @@ struct Vector3 {
 };
 
 class Loader {
-
 
 public:
     std::vector<Vector3> vertices;

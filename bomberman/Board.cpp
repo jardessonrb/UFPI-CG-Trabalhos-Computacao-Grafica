@@ -10,6 +10,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
+#include "loader/Loader.cpp"
+
+Loader loader;
 
 Board::~Board() {
 }
@@ -211,7 +214,7 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
 
     if (x_linha_boneco <= 10 && z_linha_boneco <= 10) {
         this->boneco.morrer();
-        printf("boneco morreu [%d][%d]", x_boneco, z_boneco);
+        this->is_boneco_vivo = false;
     }
 
 }
@@ -278,6 +281,7 @@ void Board::desenhar_cenario() {
         vector3d coordenada_boneco_a = this->boneco.getPos();
         desenhar_personagem(coordenada_boneco_a.x, coordenada_boneco_a.z, 10);
     }
+
 }
 
 void Board::ativar_bomba() {
@@ -345,7 +349,6 @@ void Board::desenhar_baloes() {
             this->desenhar_personagem(posicao_balao.x, posicao_balao.z, 10);
         }
     }
-
 }
 
 void Board::add_balao(Balao b) {
@@ -418,4 +421,36 @@ void Board::ativar_camera() {
     else {
         this->camera.ativarVisaoCima();
     }
+}
+
+void Board::desenhar_chao_bomba_obj() {
+    loader.loadOBJ("C:\\ufpi\\9 periodo\\COMPUTACAO_GRAFICA\\atividades\\opengl_glut\\bomberman\\models\\bomb.obj");
+    glLoadIdentity();
+    glTranslatef(30.0f, 5.0f, 240.0f);
+    glScalef(1.2f, 1.2f, 1.2f);
+    int cont = 0;
+    for (const auto& face : loader.faces) {
+        glBegin(GL_POLYGON);
+        for (const int vertexIndex : face) {
+            if (vertexIndex < loader.normals.size()) {
+                glNormal3f(loader.normals[vertexIndex].x, loader.normals[vertexIndex].y, loader.normals[vertexIndex].z);
+            }
+            glVertex3f(loader.vertices[vertexIndex].x, loader.vertices[vertexIndex].y, loader.vertices[vertexIndex].z);
+        }
+        glEnd();
+    }
+
+    printf("Importou o .obj");
+}
+
+int Board::get_status_jogo() {
+    if (!this->is_boneco_vivo) {
+        return 2;
+    }
+
+    if (this->is_boneco_vivo && this->isBombaEmOutoro) {
+        return 1;
+    }
+
+    return 0;
 }

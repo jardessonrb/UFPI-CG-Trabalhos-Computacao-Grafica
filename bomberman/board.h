@@ -5,6 +5,9 @@
 #include "balao/Balao.h"
 #include "boneco/Boneco.h"
 #include "Camera.h"
+#include "loader/Loader.h"
+#include "tocar/tocar.h"
+#include "thread"
 
 class Board {
 
@@ -29,6 +32,8 @@ private:
     Boneco boneco;
     Camera camera;
     bool isCameraPrimeiraPessoa = false;
+    Loader loader;
+    bool is_boneco_vivo = true;
 
 public:
     ~Board();
@@ -55,7 +60,8 @@ public:
     void add_camera(Camera camera);
     void alternar_camera();
     void ativar_camera();
-
+    void desenhar_chao_bomba_obj();
+    int get_status_jogo();
 
     void evento_keyboard(char keyboard);
 };

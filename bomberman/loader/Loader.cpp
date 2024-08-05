@@ -9,6 +9,10 @@ Loader::~Loader()
 }
 
 void Loader::loadOBJ(std::string path) {
+    this->faces.clear();
+    this->vertices.clear();
+    this->normals.clear();
+
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << path << std::endl;
@@ -43,7 +47,7 @@ void Loader::loadOBJ(std::string path) {
         }
     }
 
-    std::cout << "Loaded " << vertices.size() << " vertices, " << normals.size() << " normals, " << faces.size() << " faces." << std::endl;
+    // std::cout << "Loaded " << vertices.size() << " vertices, " << normals.size() << " normals, " << faces.size() << " faces." << std::endl;
 
     file.close();
 
