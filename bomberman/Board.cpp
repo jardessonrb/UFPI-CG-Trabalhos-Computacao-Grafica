@@ -369,33 +369,32 @@ void Board::alternar_camera() {
 
 void Board::evento_keyboard(char keyboard) {
     if (keyboard == 'w') {
-        // printf("%c boneco pra frente");
         this->camera.frente(getCoordenadas());
         this->boneco.frente(getCoordenadas());
+
+        std::vector<vector3d> coordenadas_boneco(1, this->boneco.getPos());
+        this->camera.atualizar_posicao_camera(coordenadas_boneco);
     }
     if (keyboard == 'a') {
-        // printf("%c boneco pra esquerda");
-        // printf("pra esquerda");
-        // camera.esquerda();
-        // boneco.esquerda();
         this->camera.esquerda(getCoordenadas());
         this->boneco.esquerda(getCoordenadas());
+
+        std::vector<vector3d> coordenadas_boneco(1, this->boneco.getPos());
+        this->camera.atualizar_posicao_camera(coordenadas_boneco);
     }
     if (keyboard == 'd') {
-        // printf("%c boneco pra direita");
-        // printf("pra direita");
-        // camera.direita();
-        // boneco.direita();
         this->camera.direita(getCoordenadas());
         this->boneco.direita(getCoordenadas());
+
+        std::vector<vector3d> coordenadas_boneco(1, this->boneco.getPos());
+        this->camera.atualizar_posicao_camera(coordenadas_boneco);
     }
     if (keyboard == 's') {
-        // printf("%c boneco pra trás");
-        // printf("pra baixo");
-        // camera.tras();
-        // boneco.tras();
         this->camera.tras(getCoordenadas());
         this->boneco.tras(getCoordenadas());
+
+        std::vector<vector3d> coordenadas_boneco(1, this->boneco.getPos());
+        this->camera.atualizar_posicao_camera(coordenadas_boneco);
     }
 
     if (keyboard == 'b') {
@@ -407,7 +406,6 @@ void Board::evento_keyboard(char keyboard) {
         alternar_camera();
     }
 
-    // if (keyboard == 'p' && camera_primeira_pessoa) {
     if (keyboard == 'p' && this->isCameraPrimeiraPessoa) {
         std::vector<vector3d> coordenadas = this->camera.andar(getCoordenadas());
         this->boneco.atualizarCoordenada(coordenadas);

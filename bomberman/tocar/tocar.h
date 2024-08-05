@@ -28,7 +28,7 @@ struct tocar {
         const char* soundFilePath = "C:\\ufpi\\9 periodo\\COMPUTACAO_GRAFICA\\atividades\\opengl_glut\\bomberman\\sons\\som_jogo.wav"; // Substitua pelo caminho do seu arquivo WAV
 
         // Reproduzir o som
-        if (PlaySound(TEXT(soundFilePath), NULL, SND_FILENAME | SND_SYNC)) {
+        if (PlaySound(TEXT(soundFilePath), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP)) {
             std::cout << "Som reproduzido com sucesso!" << std::endl;
         }
         else {

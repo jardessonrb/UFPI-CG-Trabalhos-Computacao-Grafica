@@ -161,7 +161,7 @@ void Camera::ajustarCamera() {
 
 std::vector<vector3d> Camera::andar(std::vector<std::vector<int>>& coordenadas) {
     vector3d direcao = this->direcoes[this->index_direcao];
-    printf("[%f][%f][%f] index %d \n", direcao.x, direcao.y, direcao.z, this->index_direcao);
+    // printf("[%f][%f][%f] index %d \n", direcao.x, direcao.y, direcao.z, this->index_direcao);
     m_velocidade = direcao * escala_velocidade;
 
     vector3d pos_temp = m_velocidade + m_pos;
@@ -172,7 +172,7 @@ std::vector<vector3d> Camera::andar(std::vector<std::vector<int>>& coordenadas) 
     std::vector<vector3d> coordenadas_atualizadas;
     coordenadas_atualizadas.push_back(m_pos);
     coordenadas_atualizadas.push_back(ponto_camera);
-    printf("Camera: %f, %f , %f \n", m_pos.x, m_pos.y, m_pos.z);
+    // printf("Camera: %f, %f , %f \n", m_pos.x, m_pos.y, m_pos.z);
     return coordenadas_atualizadas;
 }
 
@@ -233,4 +233,10 @@ int Camera::indexCalculado(Sentido sentido) {
     }
 
     return novo_index;
+}
+
+void Camera::atualizar_posicao_camera(std::vector<vector3d> coordenadas) {
+    vector3d posicao = coordenadas[0];
+    this->m_pos = posicao;
+    this->m_pos.y = 10;
 }

@@ -51,6 +51,7 @@ public:
     void ajustarCamera();
     std::vector<vector3d> andar(std::vector<std::vector<int>>& coordenadas);
     bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
+    void atualizar_posicao_camera(std::vector<vector3d> coordenadas);
 
 private:
     float convertParaRadianos(float angulo);
