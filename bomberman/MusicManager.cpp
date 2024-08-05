@@ -39,10 +39,6 @@ public:
         stop();
     }
 
-    // void addTrack(int trackID, const std::string& filename) {
-    //     tracks[trackID] = filename;
-    // }
-
     void start(int track) {
         std::lock_guard<std::mutex> lock(mutex);
         this->currentTrack = track;

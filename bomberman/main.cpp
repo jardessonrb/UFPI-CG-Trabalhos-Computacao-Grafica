@@ -129,16 +129,16 @@ int main(int argc, char** argv) {
     /* funcao de controle do GLUT */
     // glutMainLoop();
 
-    // std::thread soundThread(play_som);
+    std::thread soundThread(play_som);
 
     // /* funcao de controle do GLUT */
 
-    music_manager.start(0);
+    // music_manager.start(0);
 
     glutMainLoop();
 
     // // Espera a thread do som terminar antes de sair
-    // soundThread.join();
+    soundThread.join();
 
     return EXIT_SUCCESS;
 }
@@ -427,5 +427,12 @@ void mouse_active_click__callback(int x, int y) {
 
 void desenharJogo() {
     board.desenhar_cenario();
+}
+
+void play_som() {
+    tocar toca;
+
+    toca.tocar_som_jogo();
+
 }
 
