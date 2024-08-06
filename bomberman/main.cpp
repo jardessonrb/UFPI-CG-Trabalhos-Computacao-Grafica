@@ -324,10 +324,13 @@ void display_janela_2(void) {
     }
 
     if (board.get_status_jogo() == 3) {
-        mensagem = "Parabéns!!!! Você Venceu Todos os Fantasmas e Quebrou Todos os Caixotes!!! :)";
+        mensagem = "Parabéns! Voce Venceu:)";
     }
     draw_text_stroke(100, 400 - 200, "Fim de Jogo", 0.2, 2.0);
     draw_text_stroke(100, 400 - 250, mensagem, 0.1);
+    if (board.get_status_jogo() == 3) {
+        draw_text_stroke(100, 400 - 265, "Ganhou dos Fantasmas e dos Caixotes !!", 0.1);;
+    }
     draw_text_stroke(100, 400 - 280, "Quantidade de pontos: " + to_string(board.get_quantidade_pontos()), 0.1);
 
 

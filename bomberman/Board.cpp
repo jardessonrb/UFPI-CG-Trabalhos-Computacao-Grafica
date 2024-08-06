@@ -215,7 +215,7 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
     }
 
     if (is_fim_jogo_campeao()) {
-        this->status_jogo == 3;
+        this->status_jogo = 3;
     }
 }
 
