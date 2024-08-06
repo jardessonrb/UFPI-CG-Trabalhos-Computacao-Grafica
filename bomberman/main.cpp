@@ -66,6 +66,8 @@ const int COMPRIMENTO_WINDOW = 700;
 static int ultima_posicao_mouse = 0;
 static bool primeiro_click_mouse = true;
 static bool btn_mouse_esquerdo_pressionado = false;
+bool is_janela_2_ativada = false;
+int id_segunda_janela;
 
 int fps_desejado = FPS / 2; // variavel para alterar os frames por segundo desejado
 int fps = 0; //contador de frames por segundo
@@ -102,12 +104,21 @@ void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardOnpress(unsigned char key, int x, int y);
 void keyboard_special(int key, int x, int y);
+void reiniciar_jogo();
 
 void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
 void mouse_active_click__callback(int x, int y);
 void desenharJogo();
 void play_som();
+
+
+void iniciar_nova_janela();
+void display_janela_2(void);
+void keyboard_janela_2(unsigned char key, int x, int y);
+void reshape_janela_2(int w, int h);
+void mouse_click_callback_janela_2(int button, int state, int x, int y);
+void fechar_segunda_janela();
 
 /*
  * Funcao principal
@@ -427,12 +438,110 @@ void mouse_active_click__callback(int x, int y) {
 
 void desenharJogo() {
     board.desenhar_cenario();
+    if (board.get_status_jogo() == 2 && !is_janela_2_ativada) {
+        iniciar_nova_janela();
+        is_janela_2_ativada = true;
+    }
 }
 
 void play_som() {
     tocar toca;
-
     toca.tocar_som_jogo();
+}
+
+void reiniciar_jogo() {
+    Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
+    Board board((CGQuadrado(chao_coord_y)));
+    CGQuadrado cgrQuadrado(chao_coord_y);
+    Boneco boneco(vector3d(25, chao_coord_y, 260));
+    MusicManager music_manager;
+    bool camera_primeira_pessoa = false;
 
 }
 
+
+void mouse_click_callback_janela_2(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
+        if (button == GLUT_LEFT_BUTTON) {
+            y = 400 - y;
+            printf("Clicou em  %d %d -> %d %d", x, y, (400 - 300), (400 - 350));
+            if (x >= 120 && x <= 280 && y <= (400 - 300) && y >= (400 - 350)) {
+                fechar_segunda_janela();
+                printf("Clicou no botão %d %d ", x, y);
+            }
+        }
+    }
+}
+
+void display_janela_2(void) {
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glPointSize(1);
+    glLineWidth(1);
+
+    glColor3f(0.5, 0.6, 1.0); // seleciona a cor preta para o texto
+    std::string mensagem = "";
+    if (board.get_motivo_morte() == 1) {
+        mensagem = "Morreu atingido por bomba ... :(";
+    }
+
+    if (board.get_motivo_morte() == 2) {
+        mensagem = "Morreu pego por um fantasma ... :(";
+    }
+    draw_text_stroke(100, 400 - 200, "Fim de Jogo", 0.2, 2.0);
+    draw_text_stroke(100, 400 - 250, mensagem, 0.1);
+    draw_text_stroke(100, 400 - 280, "Quantidade de pontos: " + to_string(board.get_quantidade_pontos()), 0.1);
+
+
+    glColor3f(0, 0, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(120, 400 - 300);
+    glVertex2f(280, 400 - 300);
+    glVertex2f(280, 400 - 350);
+    glVertex2f(120, 400 - 350);
+    glEnd();
+
+    draw_text_stroke(150, 400 - 320, "Iniciar Novo Jogo", 0.1);
+
+    glutSwapBuffers();
+
+}
+
+void keyboard_janela_2(unsigned char key, int x, int y) {
+
+}
+
+
+void reshape_janela_2(int w, int h) {
+    int larguraJanela = 400;
+    int alturaJanela = 400;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glViewport(0, 0, larguraJanela, alturaJanela);
+
+
+    glOrtho(0, larguraJanela, 0, alturaJanela, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+void iniciar_nova_janela() {
+    // Inicialize a nova janela
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(400, 400);
+    glutInitWindowPosition(100, 100);
+    id_segunda_janela = glutCreateWindow("Mensagem do Jogo");
+
+    glutKeyboardFunc(keyboard_janela_2);
+    glutDisplayFunc(display_janela_2);
+    glutReshapeFunc(reshape_janela_2);
+    glutMouseFunc(mouse_click_callback_janela_2);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+}
+
+
+void fechar_segunda_janela() {
+    glutDestroyWindow(id_segunda_janela);
+    reiniciar_jogo();
+}

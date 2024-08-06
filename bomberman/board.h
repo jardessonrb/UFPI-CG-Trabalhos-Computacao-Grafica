@@ -34,6 +34,8 @@ private:
     bool isCameraPrimeiraPessoa = false;
     Loader loader;
     bool is_boneco_vivo = true;
+    bool motivo_fim_jogo = 0;
+    int quantidade_pontos = 0;
 
 public:
     ~Board();
@@ -62,6 +64,8 @@ public:
     void ativar_camera();
     void desenhar_chao_bomba_obj();
     int get_status_jogo();
+    int get_motivo_morte();
+    int get_quantidade_pontos();
 
     void evento_keyboard(char keyboard);
 };

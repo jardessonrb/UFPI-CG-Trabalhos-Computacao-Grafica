@@ -160,25 +160,24 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
 
     for (int i = 0; i < this->coordenada_caixotes.size(); i++)
     {
-        // printf("%d - %d - %d - %d ", x, z, x_linha, z_linha);
         if (this->coordenada_chao_board[x][z] == 2) {
-            // printf("%d - %d detectado", x, z);
             this->apagar_caixote(x, z);
+            this->quantidade_pontos += 2;
         }
 
         if (this->coordenada_chao_board[x][z_linha] == 2) {
-            // printf("%d - %d detectado", x, z_linha);
             this->apagar_caixote(x, z_linha);
+            this->quantidade_pontos += 2;
         }
 
         if (this->coordenada_chao_board[x_linha][z] == 2) {
-            // printf("%d - %d detectado", x_linha, z);
             this->apagar_caixote(x_linha, z);
+            this->quantidade_pontos += 2;
         }
 
         if (this->coordenada_chao_board[x_linha][z_linha] == 2) {
-            // printf("%d - %d detectado", x_linha, z_linha);
             this->apagar_caixote(x_linha, z_linha);
+            this->quantidade_pontos += 2;
         }
     }
 
@@ -197,7 +196,7 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
 
         if (x_linha <= 10 && z_linha <= 10) {
             this->baloes[i].morrer();
-            // printf("Balao %d morreu [%d][%d]", i, x_balao, z_balao);
+            this->quantidade_pontos += 5;
         }
     }
 
@@ -215,6 +214,7 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
     if (x_linha_boneco <= 10 && z_linha_boneco <= 10) {
         this->boneco.morrer();
         this->is_boneco_vivo = false;
+        this->motivo_fim_jogo = 1; //A bomba pegou ele
     }
 
 }
@@ -451,4 +451,12 @@ int Board::get_status_jogo() {
     }
 
     return 0;
+}
+
+int Board::get_motivo_morte() {
+    return this->motivo_fim_jogo;
+}
+
+int Board::get_quantidade_pontos() {
+    return this->quantidade_pontos;
 }
