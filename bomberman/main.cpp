@@ -281,10 +281,12 @@ void iniciar_jogo() {
     Balao balao_1((vector3d(260, chao_coord_y, 40)));
     Balao balao_2((vector3d(25, chao_coord_y, 30)));
     Balao balao_3((vector3d(260, chao_coord_y, 260)));
+    Balao balao_4((vector3d(65, chao_coord_y, 200)));
 
     board_iniciado.add_balao(balao_1);
     board_iniciado.add_balao(balao_2);
     board_iniciado.add_balao(balao_3);
+    board_iniciado.add_balao(balao_4);
     board_iniciado.add_boneco(boneco);
     board_iniciado.add_camera(camera);
 

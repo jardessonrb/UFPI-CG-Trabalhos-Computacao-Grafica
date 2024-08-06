@@ -87,8 +87,12 @@ void Balao::frente(std::vector<std::vector<int>>& coordenadas) {
         m_pos = pos_temp;
         ponto_camera.x = m_pos.x;
         ponto_camera.z = 0;
+        this->contato_com_cenario_ultima_posicao = false;
+        this->contador_passos++;
     }
-
+    else {
+        this->contato_com_cenario_ultima_posicao = true;
+    }
 }
 
 void Balao::direita(std::vector<std::vector<int>>& coordenadas) {
@@ -99,6 +103,11 @@ void Balao::direita(std::vector<std::vector<int>>& coordenadas) {
         m_pos = pos_temp;
         ponto_camera.x = 300;
         ponto_camera.z = m_pos.z;
+        this->contato_com_cenario_ultima_posicao = false;
+        this->contador_passos++;
+    }
+    else {
+        this->contato_com_cenario_ultima_posicao = true;
     }
 }
 
@@ -110,6 +119,11 @@ void Balao::esquerda(std::vector<std::vector<int>>& coordenadas) {
         m_pos = pos_temp;
         ponto_camera.x = 0;
         ponto_camera.z = m_pos.z;
+        this->contato_com_cenario_ultima_posicao = false;
+        this->contador_passos++;
+    }
+    else {
+        this->contato_com_cenario_ultima_posicao = true;
     }
 
 }
@@ -121,6 +135,11 @@ void Balao::tras(std::vector<std::vector<int>>& coordenadas) {
         m_pos = pos_temp;
         ponto_camera.x = m_pos.x;
         ponto_camera.z = 300;
+        this->contato_com_cenario_ultima_posicao = false;
+        this->contador_passos++;
+    }
+    else {
+        this->contato_com_cenario_ultima_posicao = true;
     }
 }
 
@@ -150,21 +169,34 @@ vector3d Balao::calcular_direcao(std::vector<std::vector<int>>& coordenadas) {
 
     int numeroAleatorio = distrib(gerador);
     if (this->tempo_ultimo_movimento < glutGet(GLUT_ELAPSED_TIME)) {
-        this->tempo_ultimo_movimento = (glutGet(GLUT_ELAPSED_TIME) + 500);
+
+        if (!this->contato_com_cenario_ultima_posicao && this->contador_passos <= 15) {
+            numeroAleatorio = this->ultima_direcao_escolhida;
+        }
+
+        if (this->contador_passos > 15) {
+            this->contador_passos = 0;
+        }
+
+        this->tempo_ultimo_movimento = (glutGet(GLUT_ELAPSED_TIME) + 300);
         if (numeroAleatorio == 0) {
             this->frente(coordenadas);
+            this->ultima_direcao_escolhida = 0;
         }
 
         if (numeroAleatorio == 1) {
             this->direita(coordenadas);
+            this->ultima_direcao_escolhida = 1;
         }
 
         if (numeroAleatorio == 2) {
             this->tras(coordenadas);
+            this->ultima_direcao_escolhida = 2;
         }
 
         if (numeroAleatorio == 3) {
             this->esquerda(coordenadas);
+            this->ultima_direcao_escolhida = 3;
         }
     }
 

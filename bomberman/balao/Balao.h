@@ -24,6 +24,9 @@ private:
     vector3d pos_costas = vector3d(0, 0, 1);
     bool is_balao_vivo = true;
     bool contatoCenario(std::vector<std::vector<int>>& coordenadas, int x, int z);
+    int ultima_direcao_escolhida = 0;
+    bool contato_com_cenario_ultima_posicao = false;
+    int contador_passos = 0;
 
 public:
     Balao(vector3d pos);
