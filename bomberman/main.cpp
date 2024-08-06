@@ -27,10 +27,7 @@
 #include <vector>
 #include "tocar/tocar.h"
 #include <thread>
-#include "MusicManager.cpp"
-/*
- * Declaracao de constantes e variaveis
- */
+
 
 #define ESC 27 // ASCII para a tecla ESC
 #define MAX_FPS 70 // Maximo de Frames Por Segundo (FPS) desejado
@@ -48,15 +45,7 @@ GLdouble cam_x1 = 0.0;
 GLdouble cam_y1 = 500.0;
 GLdouble cam_z1 = 850.0;
 
-// gluLookAt(0, 40, 100, // Posição da câmera (x, y, z)
-//         0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
-//         0.0, 1.0, 0.0); //UP da camera
 Board board;
-// Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
-// Board board((CGQuadrado(chao_coord_y)));
-// CGQuadrado cgrQuadrado(chao_coord_y);
-// Boneco boneco(vector3d(25, chao_coord_y, 260));
-// MusicManager music_manager;
 bool camera_primeira_pessoa = false;
 int som_ativo = 1;
 bool keyStates[KEY_COUNT];
@@ -107,15 +96,12 @@ void keyboard_special(int key, int x, int y);
 void iniciar_jogo();
 
 void mouse_click_callback(int button, int state, int x, int y);
-void mouse_passive_callback(int x, int y);
-void mouse_active_click__callback(int x, int y);
 void desenharJogo();
 void play_som();
 
 
 void iniciar_nova_janela();
 void display_janela_2(void);
-void keyboard_janela_2(unsigned char key, int x, int y);
 void reshape_janela_2(int w, int h);
 void mouse_click_callback_janela_2(int button, int state, int x, int y);
 void fechar_segunda_janela();
@@ -166,8 +152,6 @@ void init_glut(const char* nome_janela, int argc, char** argv) {
     glutSpecialFunc(keyboard_special);
     glutKeyboardUpFunc(keyboardUp);
     glutMouseFunc(mouse_click_callback);
-    glutPassiveMotionFunc(mouse_passive_callback);
-    glutMotionFunc(mouse_active_click__callback);
     glutTimerFunc(1000 / fps_desejado, timer, 0); //(mseg, timer, value)
 
 
@@ -421,12 +405,6 @@ void mouse_click_callback(int button, int state, int x, int y) {
         ultima_posicao_mouse = x;
     }
 }
-void mouse_passive_callback(int x, int y) {
-    // printf("Movimento passivo em (%d, %d)\n", x, y);
-}
-void mouse_active_click__callback(int x, int y) {
-    // printf("Movimento com botão pressionado em (%d, %d)\n", x, y);
-}
 
 void desenharJogo() {
     board.desenhar_cenario();
@@ -508,11 +486,6 @@ void display_janela_2(void) {
 
 }
 
-void keyboard_janela_2(unsigned char key, int x, int y) {
-
-}
-
-
 void reshape_janela_2(int w, int h) {
     int larguraJanela = 400;
     int alturaJanela = 400;
@@ -533,7 +506,6 @@ void iniciar_nova_janela() {
     glutInitWindowPosition(100, 100);
     id_segunda_janela = glutCreateWindow("Mensagem do Jogo");
 
-    glutKeyboardFunc(keyboard_janela_2);
     glutDisplayFunc(display_janela_2);
     glutReshapeFunc(reshape_janela_2);
     glutMouseFunc(mouse_click_callback_janela_2);
