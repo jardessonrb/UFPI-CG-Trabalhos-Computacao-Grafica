@@ -5,7 +5,6 @@
 #include "balao/Balao.h"
 #include "boneco/Boneco.h"
 #include "Camera.h"
-#include "loader/Loader.h"
 #include "tocar/tocar.h"
 #include "thread"
 
@@ -31,7 +30,6 @@ private:
     Boneco boneco;
     Camera camera;
     bool isCameraPrimeiraPessoa = false;
-    Loader loader;
     int motivo_fim_jogo = 0;
     int quantidade_pontos = 0;
 
@@ -60,7 +58,6 @@ public:
     void add_camera(Camera camera);
     void alternar_camera();
     void ativar_camera();
-    void desenhar_chao_bomba_obj();
     int get_status_jogo();
     int get_motivo_morte();
     int get_quantidade_pontos();

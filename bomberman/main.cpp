@@ -33,23 +33,19 @@
 #define MAX_FPS 70 // Maximo de Frames Por Segundo (FPS) desejado
 #define FPS 60 // FPS desejado atualmente
 #define KEY_COUNT 256
-
 #define QUANT_TEX 3 //Quantidade de texturas que serao utilizadas
+
+
 unsigned int id_texturas[QUANT_TEX];
 GLint apply_texture = GL_ADD;
 
-const int chao_coord_y = -0.5f;
-const int chao_tamanho_x = 600;
-const int chao_tamanho_z = 600;
-GLdouble cam_x1 = 0.0;
-GLdouble cam_y1 = 500.0;
-GLdouble cam_z1 = 850.0;
+//Minhas Variáveis
 
 Board board;
+const int chao_coord_y = -0.5f;
 bool camera_primeira_pessoa = false;
 int som_ativo = 1;
 bool keyStates[KEY_COUNT];
-
 const int LARGURA_WINDOW = 800;
 const int COMPRIMENTO_WINDOW = 700;
 static int ultima_posicao_mouse = 0;
@@ -60,25 +56,7 @@ int id_segunda_janela;
 
 int fps_desejado = FPS / 2; // variavel para alterar os frames por segundo desejado
 int fps = 0; //contador de frames por segundo
-
-float angulo = 0.0; // angulo de rotacao
-int graus = 5; // incremento do angulo de rotacao
-
-float ratio = 1.0; // Manter proporcional a projecao
-
 float R = 0.0, G = 0.0, B = 0.0; //Cores do desenho (inicial: cor azul)
-
-bool use_gouraud = false; // Determina o uso de Gouraud ou Flat shading
-
-bool use_depth_test = true; // Determina o uso de Z-buffering
-
-bool use_light = true; // Determina se liga a luz
-//Estrutura criada para facilitar o entendimento no calculo das normais
-struct vertice {
-    float x;
-    float y;
-    float z;
-};
 
 /*
  * Declaracoes antecipadas (forward) das funcoes (assinaturas)
@@ -87,15 +65,11 @@ void init_glut(const char* window_name, int argc, char** argv);
 void draw_object_smooth(void);
 void display(void);
 void reshape(int w, int h);
-void computeFPS();
 void timer(int value);
 void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardOnpress(unsigned char key, int x, int y);
-void keyboard_special(int key, int x, int y);
 void iniciar_jogo();
-
-void mouse_click_callback(int button, int state, int x, int y);
 void desenharJogo();
 void play_som();
 
@@ -113,16 +87,9 @@ int main(int argc, char** argv) {
     iniciar_jogo();
 
     /* inicia o GLUT e alguns parametros do OpenGL */
-    init_glut("Bomberman 3D", argc, argv);
-
-    /* funcao de controle do GLUT */
-    // glutMainLoop();
+    init_glut("Bomberman 3D - Jardesson Ribeiro", argc, argv);
 
     std::thread soundThread(play_som);
-
-    // /* funcao de controle do GLUT */
-
-    // music_manager.start(0);
 
     glutMainLoop();
 
@@ -149,9 +116,7 @@ void init_glut(const char* nome_janela, int argc, char** argv) {
     glutKeyboardFunc(keyboard);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
-    glutSpecialFunc(keyboard_special);
     glutKeyboardUpFunc(keyboardUp);
-    glutMouseFunc(mouse_click_callback);
     glutTimerFunc(1000 / fps_desejado, timer, 0); //(mseg, timer, value)
 
 
@@ -236,7 +201,6 @@ void init_glut(const char* nome_janela, int argc, char** argv) {
  * Processa o reshape da janela
  */
 void reshape(int w, int h) {
-
     // Muda para o modo GL_PROJECTION e reinicia a projecao
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -247,11 +211,6 @@ void reshape(int w, int h) {
     // ratio = (float)w / (float)h;
     gluPerspective(45.0, 1.0, 1.0, 1000.0); // Define uma perspectiva de visão (ângulo de visão, proporção, plano próximo, plano distante)
 
-    // Translada a camera no eixo Z se distanciando do objeto
-    // gluLookAt(0, 40, 400, // Posição da câmera (x, y, z)
-    //     0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
-    //     0.0, 1.0, 0.0);   // Vetor "up" da câmera (x, y, z)
-
     // muda para o modo GL_MODELVIEW para preparar o desenho
     glMatrixMode(GL_MODELVIEW);
 }
@@ -260,56 +219,19 @@ void reshape(int w, int h) {
  * Funcao para controlar o display
  */
 void display(void) {
-    float x = -ratio - 0.45;
-    // Computa a taxa  de desenho de frames por segundo
-    computeFPS();
-
     // Apaga o video e o depth buffer, e reinicia a matriz
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
     board.ativar_camera();
 
-    // if (camera_primeira_pessoa) {
-    //     camera.ativar();
-    // }
-    // else {
-    //     camera.ativarVisaoCima();
-    // }
-
     glColor3f(R, G, B); //Define a cor do objeto
-
-    // Faz variar o angulo de rotacao entre 0 e 359 graus, e roda
-    // Roda o objeto segundo o eixo x e y.
-    // glRotatef(angulo, 0.0, 1.0, 0.0);
-    // glEnable(GL_TEXTURE_2D);
-    glColor3f(1.0, 1.0, 1.0); // seleciona a cor preta para o texto
-    draw_text_stroke(0, 40, "Bomberman - FPS: " + to_string(fps));
 
     glPushMatrix();
     desenharJogo();
     glPopMatrix();
     // Troca os buffers, mostrando o que acabou de ser desenhado
     glutSwapBuffers();
-}
-
-/*
- * Computa a quantidade de frames por segundo da animacao
- */
-void computeFPS() {
-    static GLuint frames = 0;        // frames 1000 milissegundos
-    static GLuint clock;             // em milissegudos
-    static GLuint next_clock = 0;    // em milissegudos
-
-    frames++;
-    clock = glutGet(GLUT_ELAPSED_TIME); //N�mero de milissegundos desde a chamada a glutInit()
-    if (clock < next_clock) return;
-
-    fps = frames; // guarda o n�mero de frames por segundo
-
-    // Evita o reinicio da contagem dos frames na primeira iteracao
-    if (next_clock != 0) frames = 0;//Reinicia a contagem dos frames a cada 1000 milissegundos
-    next_clock = clock + 1000; // 1000 milissegundos = 1 segundo
 }
 
 /*
@@ -322,7 +244,6 @@ void timer(int value) {
 
 void keyboardOnpress(unsigned char key, int x, int y) {
     board.evento_keyboard(key);
-
     glutPostRedisplay();
 }
 
@@ -334,76 +255,8 @@ void keyboard(unsigned char key, int x, int y) {
     keyboardOnpress(key, x, y);
 }
 
-
 void keyboardUp(unsigned char key, int x, int y) {
     keyStates[key] = false;
-}
-
-/*
- * Controle das teclas especiais (Cursores, F1 a F12, etc...)
- */
-void keyboard_special(int key, int x, int y) {
-    switch (key) {
-    case GLUT_KEY_F1: R = 0.0; G = 0.0; B = 1.0; break;//Muda a cor para azul
-    case GLUT_KEY_F2: R = 0.0; G = 1.0; B = 0.0; break;//Muda a cor para verde
-    case GLUT_KEY_F3: R = 1.0; G = 0.0; B = 0.0; break;//Muda a cor para vermelho
-    case GLUT_KEY_F4: //F4: liga/desliga a luz
-        if (use_light) {
-            use_light = false;
-            glDisable(GL_LIGHTING);
-        }
-        else {
-            use_light = true;
-            glEnable(GL_LIGHTING);
-        }
-        break;
-    case GLUT_KEY_F5: //F5: liga/desliga o Z-buffering
-        if (use_depth_test) {
-            use_depth_test = false;
-            glDisable(GL_DEPTH_TEST);
-        }
-        else {
-            use_depth_test = true;
-            glEnable(GL_DEPTH_TEST);
-        }
-        break;
-
-    case GLUT_KEY_F6: //F6: liga/desliga o gouraud shading
-        if (use_gouraud) {
-            use_gouraud = false;
-            glShadeModel(GL_FLAT);
-
-        }
-        else {
-            use_gouraud = true;
-            glShadeModel(GL_SMOOTH);
-        }
-        break;
-
-    }
-}
-void mouse_click_callback(int button, int state, int x, int y) {
-
-    if (state == GLUT_DOWN) {
-        if (button == GLUT_LEFT_BUTTON) {
-            btn_mouse_esquerdo_pressionado = true;
-            ultima_posicao_mouse = x;
-            // printf("Botão esquerdo pressionado em (%d, %d)\n", x, y);
-        }
-    }
-    else if (state == GLUT_UP) {
-        btn_mouse_esquerdo_pressionado = false;
-        float dx;
-
-        if (primeiro_click_mouse) {
-            dx = 0;
-            ultima_posicao_mouse = x;
-            primeiro_click_mouse = false;
-        }
-
-        dx = x - ultima_posicao_mouse;
-        ultima_posicao_mouse = x;
-    }
 }
 
 void desenharJogo() {
