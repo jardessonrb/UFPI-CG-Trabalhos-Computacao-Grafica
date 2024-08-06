@@ -1,0 +1,20 @@
+Ações do Jogo:
+
+Quando o jogo está em terceira pessoa
+w - pra frente
+d - direita
+a - esquerda
+s - trás
+
+Quando está em primeira pessoa(Aqui as direções são relativas a frente que está no momento)
+w - rotaciona pra frente
+d - rotaciona direita
+a - rotaciona esquerda
+s - rotaciona trás
+p - anda
+
+b - Jogar Bomba(Uma de cada vez)
+c - Troca a visão da câmera
+
+Detalhes: A bomba mata o boneco. Tocar nos balões mata o boneco.
+Campeão: Quando todos os caixotes e balões estiverem sido derrotados e destruídos

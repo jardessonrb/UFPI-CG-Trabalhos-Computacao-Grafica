@@ -320,7 +320,7 @@ void display_janela_2(void) {
     }
 
     if (board.get_status_jogo() == 2) {
-        mensagem = "Morreu pego por um fantasma ... :(";
+        mensagem = "Morreu pego por um balao ... :(";
     }
 
     if (board.get_status_jogo() == 3) {
