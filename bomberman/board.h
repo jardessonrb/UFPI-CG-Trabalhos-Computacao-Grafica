@@ -18,7 +18,6 @@ private:
     int altura_y = -0.5f;
     std::vector<std::vector<int>> coordenada_chao_board;
     CGQuadrado cgQuadrado;
-    void iniciar_matriz();
     std::vector<std::vector<int>> coordenada_caixotes;
     std::pair<float, float> posicao_bomba;
     unsigned int inicio_tempo_bomba = 0;
@@ -33,8 +32,7 @@ private:
     Camera camera;
     bool isCameraPrimeiraPessoa = false;
     Loader loader;
-    bool is_boneco_vivo = true;
-    bool motivo_fim_jogo = 0;
+    int motivo_fim_jogo = 0;
     int quantidade_pontos = 0;
 
 public:
@@ -66,6 +64,7 @@ public:
     int get_status_jogo();
     int get_motivo_morte();
     int get_quantidade_pontos();
+    void detectar_contato_com_balao();
 
     void evento_keyboard(char keyboard);
 };

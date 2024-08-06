@@ -51,14 +51,14 @@ GLdouble cam_z1 = 850.0;
 // gluLookAt(0, 40, 100, // Posição da câmera (x, y, z)
 //         0.0, 0.5, -300.0,    // Ponto para onde a câmera está olhando (x, y, z)
 //         0.0, 1.0, 0.0); //UP da camera
-Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
-Board board((CGQuadrado(chao_coord_y)));
-CGQuadrado cgrQuadrado(chao_coord_y);
-Boneco boneco(vector3d(25, chao_coord_y, 260));
-MusicManager music_manager;
+Board board;
+// Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
+// Board board((CGQuadrado(chao_coord_y)));
+// CGQuadrado cgrQuadrado(chao_coord_y);
+// Boneco boneco(vector3d(25, chao_coord_y, 260));
+// MusicManager music_manager;
 bool camera_primeira_pessoa = false;
 int som_ativo = 1;
-
 bool keyStates[KEY_COUNT];
 
 const int LARGURA_WINDOW = 800;
@@ -104,7 +104,7 @@ void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardOnpress(unsigned char key, int x, int y);
 void keyboard_special(int key, int x, int y);
-void reiniciar_jogo();
+void iniciar_jogo();
 
 void mouse_click_callback(int button, int state, int x, int y);
 void mouse_passive_callback(int x, int y);
@@ -124,15 +124,7 @@ void fechar_segunda_janela();
  * Funcao principal
  */
 int main(int argc, char** argv) {
-    Balao balao_1((vector3d(260, chao_coord_y, 40)));
-    Balao balao_2((vector3d(25, chao_coord_y, 30)));
-    Balao balao_3((vector3d(260, chao_coord_y, 260)));
-
-    board.add_balao(balao_1);
-    board.add_balao(balao_2);
-    board.add_balao(balao_3);
-    board.add_boneco(boneco);
-    board.add_camera(camera);
+    iniciar_jogo();
 
     /* inicia o GLUT e alguns parametros do OpenGL */
     init_glut("Bomberman 3D", argc, argv);
@@ -449,14 +441,24 @@ void play_som() {
     toca.tocar_som_jogo();
 }
 
-void reiniciar_jogo() {
+void iniciar_jogo() {
+    Board board_iniciado((CGQuadrado(chao_coord_y)));
     Camera camera(vector3d(30, 10, 270), vector3d(0, 0.5, 0), vector3d(0, 1.0, 0));
-    Board board((CGQuadrado(chao_coord_y)));
     CGQuadrado cgrQuadrado(chao_coord_y);
     Boneco boneco(vector3d(25, chao_coord_y, 260));
-    MusicManager music_manager;
-    bool camera_primeira_pessoa = false;
 
+    Balao balao_1((vector3d(260, chao_coord_y, 40)));
+    Balao balao_2((vector3d(25, chao_coord_y, 30)));
+    Balao balao_3((vector3d(260, chao_coord_y, 260)));
+
+    board_iniciado.add_balao(balao_1);
+    board_iniciado.add_balao(balao_2);
+    board_iniciado.add_balao(balao_3);
+    board_iniciado.add_boneco(boneco);
+    board_iniciado.add_camera(camera);
+
+    board = board_iniciado;
+    camera_primeira_pessoa = false;
 }
 
 
@@ -464,10 +466,8 @@ void mouse_click_callback_janela_2(int button, int state, int x, int y) {
     if (state == GLUT_DOWN) {
         if (button == GLUT_LEFT_BUTTON) {
             y = 400 - y;
-            printf("Clicou em  %d %d -> %d %d", x, y, (400 - 300), (400 - 350));
             if (x >= 120 && x <= 280 && y <= (400 - 300) && y >= (400 - 350)) {
                 fechar_segunda_janela();
-                printf("Clicou no botão %d %d ", x, y);
             }
         }
     }
@@ -481,7 +481,7 @@ void display_janela_2(void) {
     glLineWidth(1);
 
     glColor3f(0.5, 0.6, 1.0); // seleciona a cor preta para o texto
-    std::string mensagem = "";
+    std::string mensagem = "Fim de Jogo";
     if (board.get_motivo_morte() == 1) {
         mensagem = "Morreu atingido por bomba ... :(";
     }
@@ -502,7 +502,7 @@ void display_janela_2(void) {
     glVertex2f(120, 400 - 350);
     glEnd();
 
-    draw_text_stroke(150, 400 - 320, "Iniciar Novo Jogo", 0.1);
+    draw_text_stroke(150, 400 - 320, "Fechar Jogo", 0.1);
 
     glutSwapBuffers();
 
@@ -543,5 +543,4 @@ void iniciar_nova_janela() {
 
 void fechar_segunda_janela() {
     glutDestroyWindow(id_segunda_janela);
-    reiniciar_jogo();
 }

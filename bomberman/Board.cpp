@@ -213,7 +213,6 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
 
     if (x_linha_boneco <= 10 && z_linha_boneco <= 10) {
         this->boneco.morrer();
-        this->is_boneco_vivo = false;
         this->motivo_fim_jogo = 1; //A bomba pegou ele
     }
 
@@ -238,10 +237,6 @@ void Board::desenhar_linhas_no_chao() {
 
     }
     glEnd();
-}
-
-void Board::iniciar_matriz() {
-
 }
 
 void Board::marcar_matriz(int x, int z, int peso) {
@@ -272,7 +267,6 @@ void Board::desenhar_bomba(int x, int z, int tamanho) {
 void Board::desenhar_cenario() {
     desenhar_chao();
     desenhar_linhas_no_chao();
-    iniciar_matriz();
     desenhar_obstaculos();
     ativar_bomba();
     desenhar_baloes();
@@ -281,6 +275,8 @@ void Board::desenhar_cenario() {
         vector3d coordenada_boneco_a = this->boneco.getPos();
         desenhar_personagem(coordenada_boneco_a.x, coordenada_boneco_a.z, 10);
     }
+
+    detectar_contato_com_balao();
 
 }
 
@@ -442,11 +438,11 @@ void Board::desenhar_chao_bomba_obj() {
 }
 
 int Board::get_status_jogo() {
-    if (!this->is_boneco_vivo) {
+    if (!this->boneco.is_vivo()) {
         return 2;
     }
 
-    if (this->is_boneco_vivo && this->isBombaEmOutoro) {
+    if (this->boneco.is_vivo() && this->isBombaEmOutoro) {
         return 1;
     }
 
@@ -459,4 +455,29 @@ int Board::get_motivo_morte() {
 
 int Board::get_quantidade_pontos() {
     return this->quantidade_pontos;
+}
+
+void Board::detectar_contato_com_balao() {
+    for (int i = 0; i < this->baloes.size(); i++)
+    {
+        if (this->baloes[i].is_vivo()) {
+            vector3d posicao_boneco = this->boneco.getPos();
+            vector3d posicao_balao = this->baloes[i].getPos();
+
+            int x_balao = posicao_balao.x;
+            int z_balao = posicao_balao.z;
+
+            int x_linha = x_balao - posicao_boneco.x;
+            int z_linha = z_balao - posicao_boneco.z;
+
+            x_linha = x_linha < 0 ? (-1 * x_linha) : x_linha;
+            z_linha = z_linha < 0 ? (-1 * z_linha) : z_linha;
+
+            if (x_linha <= 10 && z_linha <= 10) {
+                this->boneco.morrer();
+                this->motivo_fim_jogo = 2;
+            }
+        }
+    }
+
 }
