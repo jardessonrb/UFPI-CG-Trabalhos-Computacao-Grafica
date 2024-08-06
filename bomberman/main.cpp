@@ -260,11 +260,11 @@ void keyboardUp(unsigned char key, int x, int y) {
 }
 
 void desenharJogo() {
-    board.desenhar_cenario();
-    if (board.get_status_jogo() == 2 && !is_janela_2_ativada) {
+    if ((board.get_status_jogo() == 2 || board.get_status_jogo() == 1 || board.get_status_jogo() == 3) && !is_janela_2_ativada) {
         iniciar_nova_janela();
         is_janela_2_ativada = true;
     }
+    board.desenhar_cenario();
 }
 
 void play_som() {
@@ -315,12 +315,16 @@ void display_janela_2(void) {
 
     glColor3f(0.5, 0.6, 1.0); // seleciona a cor preta para o texto
     std::string mensagem = "Fim de Jogo";
-    if (board.get_motivo_morte() == 1) {
+    if (board.get_status_jogo() == 1) {
         mensagem = "Morreu atingido por bomba ... :(";
     }
 
-    if (board.get_motivo_morte() == 2) {
+    if (board.get_status_jogo() == 2) {
         mensagem = "Morreu pego por um fantasma ... :(";
+    }
+
+    if (board.get_status_jogo() == 3) {
+        mensagem = "Parabéns!!!! Você Venceu Todos os Fantasmas e Quebrou Todos os Caixotes!!! :)";
     }
     draw_text_stroke(100, 400 - 200, "Fim de Jogo", 0.2, 2.0);
     draw_text_stroke(100, 400 - 250, mensagem, 0.1);

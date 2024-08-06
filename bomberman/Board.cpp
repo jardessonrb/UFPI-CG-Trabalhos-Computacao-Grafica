@@ -40,7 +40,7 @@ Board::Board(CGQuadrado cg) {
         { 140, 260, 1},
         { 240, 140, 1},
         { 240, 180, 1},
-        { 240, 220, 1},
+        { 240, 220, 1}
     };
 }
 
@@ -211,9 +211,12 @@ void Board::detectar_explosao(int x, int z, int tamanho) {
 
     if (x_linha_boneco <= 10 && z_linha_boneco <= 10) {
         this->boneco.morrer();
-        this->motivo_fim_jogo = 1; //A bomba pegou ele
+        this->status_jogo = 1; //A bomba pegou ele
     }
 
+    if (is_fim_jogo_campeao()) {
+        this->status_jogo == 3;
+    }
 }
 
 void Board::desenhar_linhas_no_chao() {
@@ -416,19 +419,11 @@ void Board::ativar_camera() {
 }
 
 int Board::get_status_jogo() {
-    if (!this->boneco.is_vivo()) {
-        return 2;
-    }
-
-    if (this->boneco.is_vivo() && this->isBombaEmOutoro) {
-        return 1;
-    }
-
-    return 0;
+    return this->status_jogo;
 }
 
 int Board::get_motivo_morte() {
-    return this->motivo_fim_jogo;
+    return this->status_jogo;
 }
 
 int Board::get_quantidade_pontos() {
@@ -453,9 +448,30 @@ void Board::detectar_contato_com_balao() {
 
             if (x_linha <= 10 && z_linha <= 10) {
                 this->boneco.morrer();
-                this->motivo_fim_jogo = 2;
+                this->status_jogo = 2;
             }
         }
     }
 
+}
+
+bool Board::is_fim_jogo_campeao() {
+    bool is_campeao = true;
+    for (int i = 0; i < this->baloes.size(); i++)
+    {
+        if (this->baloes[i].is_vivo()) {
+            is_campeao = false;
+            break;
+        }
+    }
+
+    for (int i = 0; i < this->coordenada_caixotes.size(); i++)
+    {
+        if (this->coordenada_caixotes[i][2] != 0) {
+            is_campeao = false;
+            break;
+        }
+    }
+
+    return is_campeao;
 }

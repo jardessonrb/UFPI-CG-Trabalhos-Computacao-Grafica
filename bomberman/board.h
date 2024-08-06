@@ -30,7 +30,7 @@ private:
     Boneco boneco;
     Camera camera;
     bool isCameraPrimeiraPessoa = false;
-    int motivo_fim_jogo = 0;
+    int status_jogo = 0;
     int quantidade_pontos = 0;
 
 public:
@@ -62,7 +62,7 @@ public:
     int get_motivo_morte();
     int get_quantidade_pontos();
     void detectar_contato_com_balao();
-
+    bool is_fim_jogo_campeao();
     void evento_keyboard(char keyboard);
 };
 
