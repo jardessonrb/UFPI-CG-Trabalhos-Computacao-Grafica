@@ -1,5 +1,8 @@
 # Paint com GLUT - Computação Gráfica
 
+### Vídeo
+![Video Demonstracao](./videos/video_paint_1.gif)
+
 ### Imagens
 
 #### Paint
@@ -10,6 +13,9 @@
 
 #### Paint - Rasterização e fechamento de polígano
 ![Imagem paint fechamento de poligano](./imagens/imagem_fechamento_poligano.png)
+
+
+
 
 ### Desenvolvido
 
