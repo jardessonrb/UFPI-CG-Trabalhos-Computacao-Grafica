@@ -25,3 +25,9 @@
 
 
 ### Imagens do Jogo
+
+#### Vídeo 3° pessoa
+![bomberman em 1° pessoa](./videos/video_bomberman.gif)
+
+#### Vídeo 1° pessoa
+![bomberman em 1° pessoa](./videos/video_bomberman_visao_camera.gif)
