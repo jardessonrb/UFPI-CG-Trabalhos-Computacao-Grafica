@@ -1,8 +1,12 @@
 # Jogo do Bomberman 3D
 
- - O jogo foi desenvolvido usando o openglut.
+ - O jogo foi desenvolvido usando o OpenGl.
  - A mecânica do jogo foi inspirado no jogo do Bomberman, implementado para utilizar fundamentos da computação gráfica.
- 
+ - Coisas Trabalhadas
+    - Adição de Texturas
+    - Movimentação de Câmera
+    - Trabalho com luz
+    - Aplicação de criação de figuras
 ### Mecânica do Jogo
 
 #### Visão 3° pessoa

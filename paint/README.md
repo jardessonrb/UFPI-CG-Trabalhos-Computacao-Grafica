@@ -1,11 +1,17 @@
 # Paint com GLUT - Computação Gráfica
 
-## Paint
-![Paint Implementado](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/paint/imagem_meu_paint.png)
+### Imagens
 
+#### Paint
+![Imagem paint](./imagens/imagem_meu_paint.png)
 
-  - Menu para fechamento de poligano
-  - ![Fechamento de Poligano](https://github.com/jardessonrb/UFPI-CG-Trabalhos-Computacao-Grafica/blob/main/paint/imagem_fechamento_poligano.png)
+#### Paint - Exemplo de uso com um triângulo
+![Imagem paint com triangulo](./imagens/paint.png)
+
+#### Paint - Rasterização e fechamento de polígano
+![Imagem paint fechamento de poligano](./imagens/imagem_fechamento_poligano.png)
+
+### Desenvolvido
 
 Desenvolva um Editor Gráfico em C/C++, estilo o Paint da Microsoft, utilizando as bibliotecas
 GLUT/OpenGL. Leia os comentários do programa “paint.cpp” e utilize o programa “paint.cpp”
